@@ -1,0 +1,38 @@
+[package]
+name = "co-orm"
+version = "0.2.2"
+edition = "2021"
+authors = ["plucky"]
+description = "Derive macro for sqlx to implement Create, Read, Update, and Delete (CRUD) methods."
+#documentation = "https://docs.rs/co_orm/"
+readme = "readme.md"
+keywords = [
+    "orm",
+    "sqlx",
+    "crud",
+]
+categories = ["database"]
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/cody-why/co-orm"
+
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+co-orm-macros = {version ="0.2.1", optional = true}
+
+[patch.crates-io]
+co-orm-macros = {path = "co-orm-macros"}
+
+
+[dev-dependencies]
+sqlx = { version = "0.6", features = ["mysql", "runtime-tokio-native-tls", "offline"] }
+tokio = { version = "1", features = ["macros"] }
+
+
+[features]
+default = ["mysql"]
+mysql=["co-orm-macros/mysql"]
+postgres=["co-orm-macros/postgres"]
+sqlite=["co-orm-macros/sqlite"]
+mssql=["co-orm-macros/mssql"]

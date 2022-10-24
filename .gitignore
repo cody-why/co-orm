@@ -1,0 +1,6 @@
+/target
+*.lock
+/logs
+*/logs/*
+*/target/*
+.vscode
