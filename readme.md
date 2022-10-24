@@ -24,12 +24,12 @@
  ```toml
 [dependencies]
 sqlx = { version = "0.6", features = ["mysql","runtime-tokio-native-tls"] }
-co-orm = { virsion = "0.2", features = ["mysql"] }
+co-orm = { virsion = "0.2.3", features = ["mysql"] }
 # for #[tokio::test]
 tokio = { version = "1", features = ["macros"] }
 
  ```
- * other 
+ 
  * features: mysql, postgres, sqlite, mssql
 
 ## Examples
@@ -61,7 +61,7 @@ async fn test_query() {
     let pool=get_pool().await.unwrap();
     let u = User::get(&pool, 1).await.unwrap();
     println!("get {:?}", u);
-    let u = User::get_by(&pool, "id=1").await.unwrap();
+    let u = User::get_by(&pool, "where id=1").await.unwrap();
     println!("get {:?}", u);
     
 }

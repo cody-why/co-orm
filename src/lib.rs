@@ -3,7 +3,7 @@
 /*
  * @Author: plucky
  * @Date: 2022-10-21 16:53:21
- * @LastEditTime: 2022-10-24 13:45:03
+ * @LastEditTime: 2022-10-24 21:29:12
  * @Description: 
  */
 
@@ -40,7 +40,7 @@
 //! // use crud
 //! let u = User::get(&pool, 1).await.unwrap();
 //! println!("get {:?}", u);
-//! let u = User::get_by(&pool, "id=1").await.unwrap();
+//! let u = User::get_by(&pool, "where id=1").await.unwrap();
 //! println!("get_by {:?}", u);
 //! ```
 

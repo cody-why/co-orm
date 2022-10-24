@@ -1,7 +1,7 @@
 /*
  * @Author: plucky
  * @Date: 2022-10-22 18:08:45
- * @LastEditTime: 2022-10-24 10:35:21
+ * @LastEditTime: 2022-10-24 21:24:55
  * @Description: 
  */
 
@@ -103,21 +103,18 @@ pub fn generate_crud(input: DeriveInput) -> TokenStream {
             }
 
             pub async fn get_by(pool: &#pool, where_sql: &str) -> sqlx::Result<Self> {
-                let mut sql = format!("SELECT * FROM {}", #table_name);
-                if !where_sql.is_empty(){
-                    sql = format!("{} WHERE {}", sql, where_sql);
-                }
+                let sql = format!("SELECT * FROM {} {}", #table_name, where_sql);
+                // if !where_sql.is_empty(){
+                //     sql = format!("{} WHERE {}", sql, where_sql);
+                // }
                 sqlx::query_as::<_, Self>(&sql)
                 .fetch_one(pool).await
             }
 
             pub async fn query_by(pool: &#pool, where_sql: &str) -> sqlx::Result<Vec<Self>> {
-                let mut sql = format!("SELECT * FROM {}", #table_name);
-                if !where_sql.is_empty(){
-                    sql = format!("{} WHERE {}", sql, where_sql);
-                }
-                sqlx::query_as::<_, Self>(&sql)
+                let sql = format!("SELECT * FROM {} {}", #table_name, where_sql);
                 
+                sqlx::query_as::<_, Self>(&sql)
                 .fetch_all(pool).await
             }
 
@@ -132,7 +129,7 @@ pub fn generate_crud(input: DeriveInput) -> TokenStream {
             }
 
             pub async fn upsert(&self, pool: &#pool) -> sqlx::Result<#query_result> {
-                let sql = format!("REPLACE INTO {} ( {} ) values ({})", #table_name, #columns_all, #values_all);
+                let sql = format!("REPLACE INTO {} ({}) values ({})", #table_name, #columns_all, #values_all);
                 sqlx::query(&sql)
                 #(
                     .bind(&self.#field_name_all)
@@ -149,12 +146,9 @@ pub fn generate_crud(input: DeriveInput) -> TokenStream {
             }
 
             pub async fn delete_by(pool: &#pool, where_sql: &str) -> sqlx::Result<#query_result> {
-                let mut sql = format!("DELETE FROM {}", #table_name);
-                if !where_sql.is_empty(){
-                    sql = format!("{} WHERE {}", sql, where_sql);
-                }
+                let sql = format!("DELETE FROM {} {}", #table_name, where_sql);
+               
                 sqlx::query(&sql)
-                
                 .execute(pool).await
             }
 
@@ -169,10 +163,8 @@ pub fn generate_crud(input: DeriveInput) -> TokenStream {
             }
 
             pub async fn update_by(&self, pool: &#pool, where_sql: &str) -> sqlx::Result<#query_result> {
-                let mut sql = format!("UPDATE {} SET {} ", #table_name, #update_fields_str);
-                if !where_sql.is_empty(){
-                    sql = format!("{} WHERE {}", sql, where_sql);
-                }
+                let sql = format!("UPDATE {} SET {} {}", #table_name, #update_fields_str, where_sql);
+                
                 sqlx::query(&sql)
                 #(
                      .bind(&self.#update_fields) 

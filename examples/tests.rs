@@ -1,7 +1,7 @@
 /*
  * @Author: plucky
  * @Date: 2022-10-21 17:23:16
- * @LastEditTime: 2022-10-24 13:42:20
+ * @LastEditTime: 2022-10-24 21:28:29
  * @Description: 
  */
 fn main() {
@@ -53,7 +53,7 @@ mod tests{
         
         let u = User::get(&pool, 1).await;
         println!("get {:?}", u);
-        let u = User::get_by(&pool, "id=1").await;
+        let u = User::get_by(&pool, "where id=1").await;
         println!("get_by {:?}", u);
         let u = User::query_by_name(&pool, "plucky".into()).await;
         println!("query_by_name {:?}", u);
@@ -69,7 +69,7 @@ mod tests{
         
         let r = _u.update(&pool).await.unwrap();
         dbg!(r);
-        let r = _u.update_by(&pool,"id=1").await.unwrap();
+        let r = _u.update_by(&pool,"where id=1").await.unwrap();
         dbg!(r);
         let r =  _u.update_name(&pool).await.unwrap();
         dbg!(r);
@@ -91,7 +91,7 @@ mod tests{
         let _u = User::new(4, Some("lusy".into()), "sz".into());
         let r = _u.delete(&pool).await.unwrap();
         println!("delete: {:?}",r);
-        let r =User::delete_by(&pool, "name='leo'").await.unwrap();
+        let r =User::delete_by(&pool, "where name='leo'").await.unwrap();
         println!("delete: {:?}",r);
         let r =User::delete_by_name(&pool, "lusy".into()).await.unwrap();
         println!("delete: {:?}",r);
