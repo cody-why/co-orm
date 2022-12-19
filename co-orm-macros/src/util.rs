@@ -31,7 +31,7 @@ pub fn get_table_name(input: &DeriveInput) -> String {
     // to_table_case: UserDetail => user_details
     // to_snake_case: UserDetail => user_detail
     let name = get_attribute_value(&input.attrs, "orm_rename").unwrap_or_else(|| {
-        input.ident.to_string().to_table_case()
+        input.ident.to_string().to_snake_case()
     });
     
     name

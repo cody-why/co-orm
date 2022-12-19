@@ -1,4 +1,4 @@
-# Rust derive macro for sqlx to implement Create, Read, Update, and Delete (CRUD) methods.
+# Rust derive macro implement Create, Read, Update, and Delete (CRUD) methods base on sqlx.
 
 <div align="center">
   <!-- Version -->
@@ -23,9 +23,10 @@
  adding the following to your project's Cargo.toml:
  ```toml
 [dependencies]
+co-orm = { virsion = "0.2", features = ["mysql"] }
 sqlx = { version = "0.6", features = ["mysql","runtime-tokio-native-tls"] }
-co-orm = { virsion = "0.2.3", features = ["mysql"] }
-# for #[tokio::test]
+
+[dev-dependencies]
 tokio = { version = "1", features = ["macros"] }
 
  ```
