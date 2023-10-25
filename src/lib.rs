@@ -29,12 +29,13 @@
 //!     pub id: u64,
 //! 
 //!     #[orm_by] // generate query_by_field,update_by_field,delete_by_field
-//!     #[orm_update] // generate method update_field. 
 //!     // #[orm_rename = "name"] // rename field name
-//!     pub name: Option<String>,
-//!
+//!     pub name: String,
+//!     #[orm_update] // generate method update_xxx. 
+//!     pub password: String,
+//! 
 //!     #[orm_ignore] // ignore field
-//!     pub add: String,
+//!     pub addr: String,
 //! }
 //! 
 //! // use crud

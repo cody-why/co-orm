@@ -35,25 +35,24 @@ tokio = { version = "1", features = ["macros"] }
 
 ## Examples
 ```rust
-  use co_orm::{Crud, FromRow};
-  #[derive(Debug, Crud, FromRow)]
-  #[orm_rename = "users"] // rename table name
-  struct User {
-      // #[orm_pk] // default first field is primary key
-      #[orm_seq] // sequence field, insert will ignore this field
-      pub id: u64,
-      
-      #[orm_by] // generate query_by_field,update_by_field,delete_by_field
-      //#[orm_rename = "name"] // rename field name
-      pub name: String,
-      #[orm_update] // generate method update_xxx. 
-      pub password: String,
-      #[orm_ignore] // ignore field
-      pub addr: Option<String>,
-      // #[sqlx(default)]
-      // pub age: i32,
-  }
-
+use co_orm::{Crud, FromRow};
+#[derive(Debug, Crud, FromRow)]
+#[orm_rename = "users"] // rename table name
+struct User {
+    // #[orm_pk] // default first field is primary key
+    #[orm_seq] // sequence field, insert will ignore this field
+    pub id: u64,
+    
+    #[orm_by] // generate query_by_field,update_by_field,delete_by_field
+    //#[orm_rename = "name"] // rename field name
+    pub name: String,
+    #[orm_update] // generate method update_xxx. 
+    pub password: String,
+    #[orm_ignore] // ignore field
+    pub addr: Option<String>,
+    // #[sqlx(default)]
+    // pub age: i32,
+}
 
 
 pub async fn get_pool() -> Result<MySqlPool> {

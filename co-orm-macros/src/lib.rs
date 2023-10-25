@@ -1,7 +1,7 @@
 /*
  * @Author: plucky
  * @Date: 2022-09-04 00:01:24
- * @LastEditTime: 2022-10-24 11:02:28
+ * @LastEditTime: 2023-10-25 23:07:43
  * @Description: 
  */
 
@@ -23,7 +23,7 @@ mod impl_crud;
 
 
 /// `#[derive(Crud)]`
-/// generate get, get_by, query_by, update, delete, insert.
+/// generate get, get_by, query_by, update, delete, insert, insert_all
 /// 
 /// attributes:
 /// 
