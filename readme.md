@@ -24,7 +24,7 @@
  ```toml
 [dependencies]
 co-orm = { virsion = "0.2", features = ["mysql"] }
-sqlx = { version = "0.6", features = ["mysql","runtime-tokio-native-tls"] }
+sqlx = { version = "0.7", features = ["mysql","runtime-tokio-native-tls"] }
 
 [dev-dependencies]
 tokio = { version = "1", features = ["macros"] }
@@ -35,22 +35,26 @@ tokio = { version = "1", features = ["macros"] }
 
 ## Examples
 ```rust
-use co_orm::{Crud, FromRow};
-#[derive(Debug, Crud, FromRow)]
-// #[orm_rename = "users"] // rename table name
-pub struct User {
-    // #[orm_pk] // default first field is primary key
-    #[orm_seq] // sequence field, insert will ignore this field
-    pub id: i64,
-    
-    #[orm_by] // generate query_by_field,update_by_field,delete_by_field
-    #[orm_update] // generate method update_xxx. 
-    //#[orm_rename = "name"] // rename field name
-    pub name: Option<String> ,
+  use co_orm::{Crud, FromRow};
+  #[derive(Debug, Crud, FromRow)]
+  #[orm_rename = "users"] // rename table name
+  struct User {
+      // #[orm_pk] // default first field is primary key
+      #[orm_seq] // sequence field, insert will ignore this field
+      pub id: u64,
+      
+      #[orm_by] // generate query_by_field,update_by_field,delete_by_field
+      //#[orm_rename = "name"] // rename field name
+      pub name: String,
+      #[orm_update] // generate method update_xxx. 
+      pub password: String,
+      #[orm_ignore] // ignore field
+      pub addr: Option<String>,
+      // #[sqlx(default)]
+      // pub age: i32,
+  }
 
-    #[orm_ignore] // ignore field
-    pub add: String,
-}
+
 
 pub async fn get_pool() -> Result<MySqlPool> {
     MySqlPoolOptions::new()
@@ -71,7 +75,7 @@ async fn test_query() {
 
 ``` rust
 /// #[derive(Crud)]
-/// generate get, get_by, query_by, update, delete, insert.
+/// get, get_by, qurery, query_by, update, delete, insert, insert_all.
 /// 
 /// attributes:
 /// 
@@ -81,9 +85,9 @@ async fn test_query() {
 /// `#[orm_seq]`
 /// sequence field, auto increment. insert will ignore this field.
 /// 
-/// #[orm_rename= "name"]
+/// #[orm_rename= "names"]
 /// rename table name or field name.
-/// default table name by struct name to_table_case: UserDetail => user_details.
+/// default table name by struct name to_snake_case: UserDetail => user_detail.
 /// default field name by field name to_snake_case: UserDetail => user_detail.
 /// 
 /// #[orm_ignore]
@@ -103,7 +107,7 @@ async fn test_query() {
 /// if you don't want to use `#[derive(co_orm::FromRow)]` macro, 
 /// you can use `#[derive(sqlx::FromRow)]` macro or impl `sqlx::FromRow` trait.
 /// 
-/// if using sqlx::FromRow, `#[orm_ignore]` add `#[sql::defult]` .
+/// if using sqlx::FromRow, ignore field use `#[orm_ignore]` add `#[sql::defult]`  `#[sqlx(skip)]`.
 
 
 ```

@@ -1,7 +1,7 @@
 /*
  * @Author: plucky
  * @Date: 2022-10-20 00:29:48
- * @LastEditTime: 2022-10-24 08:48:57
+ * @LastEditTime: 2023-10-25 22:59:32
  * @Description: 
  */
 
@@ -59,6 +59,6 @@ pub fn db_placeholder(index: usize)-> String{
     // if cfg!(feature = "mssql") {
     //     return "?";
     // }
-    return "?".into();
+    "?".into()
 
 }

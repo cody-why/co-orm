@@ -30,11 +30,9 @@ pub(crate) fn is_seq(field: &Field) -> bool {
 pub fn get_table_name(input: &DeriveInput) -> String {
     // to_table_case: UserDetail => user_details
     // to_snake_case: UserDetail => user_detail
-    let name = get_attribute_value(&input.attrs, "orm_rename").unwrap_or_else(|| {
+    get_attribute_value(&input.attrs, "orm_rename").unwrap_or_else(|| {
         input.ident.to_string().to_snake_case()
-    });
-    
-    name
+    })
 }
 
 /// field_name if rename
@@ -47,21 +45,20 @@ pub fn get_field_name(field: &Field) -> String {
 }
 
 
+
 /// `#[name(value)]` attribute value exist or not
-pub fn has_attribute_value(attrs: &Vec<syn::Attribute>, name: &str, value: &str) -> bool {
+pub fn has_attribute_value(attrs: &[syn::Attribute], name: &str, value: &str) -> bool {
     for attr in attrs.iter() {
         if !attr.path.is_ident(name){
             continue;
         }
-        if let Ok(list) = attr.parse_meta(){
-            if let syn::Meta::List(list) = list {
-                for nested in list.nested.iter() {
-                    if let syn::NestedMeta::Meta(syn::Meta::Path(path)) = nested {
-                        if path.is_ident(value) {
-                            return true;
-                        }
-                        
+        if let Ok(syn::Meta::List(list)) = attr.parse_meta(){
+            for nested in list.nested.iter() {
+                if let syn::NestedMeta::Meta(syn::Meta::Path(path)) = nested {
+                    if path.is_ident(value) {
+                        return true;
                     }
+        
                 }
             }
 
@@ -72,43 +69,31 @@ pub fn has_attribute_value(attrs: &Vec<syn::Attribute>, name: &str, value: &str)
 }
 
 /// `#[name]` attribute name exist or not
-pub fn has_attribute(attrs: &Vec<syn::Attribute>, name: &str) -> bool {
-    // for attr in attrs.iter() {
-    //     if attr.path.is_ident(name){
-    //         return  true;
-    //     }
-    // }
-    // false
-
+pub fn has_attribute(attrs: &[syn::Attribute], name: &str) -> bool {
     attrs.iter().any(|attr| attr.path.is_ident(name))
 }
 
 /// `#[name(key="val")]` Get the value of the name attribute by key
-pub fn get_attribute_by_key(attrs: &Vec<syn::Attribute>, name: &str, key: &str) -> Option<String> {
-    match attrs.iter()
-        .find(|a| a.path.is_ident(name))
-        .map(|a| a.parse_meta())
-        {
-            Some(Ok(syn::Meta::List(list))) => {
-                for nested in list.nested.iter() {
-                    if let syn::NestedMeta::Meta(syn::Meta::NameValue(name_value)) = nested {
-                        if name_value.path.is_ident(key) {
-                            if let syn::Lit::Str(lit_str) = &name_value.lit {
-                                return Some(lit_str.value());
-                            }
-                        }
-                    }
-                }
-
-            }
-            _ => {}
-        };
+pub fn get_attribute_by_key(attrs: &[syn::Attribute], name: &str, key: &str) -> Option<String> {
+    if let Some(Ok(syn::Meta::List(list))) = attrs.iter()
+         .find(|a| a.path.is_ident(name))
+         .map(|a| a.parse_meta()) {
+         for nested in list.nested.iter() {
+             if let syn::NestedMeta::Meta(syn::Meta::NameValue(name_value)) = nested {
+                 if name_value.path.is_ident(key) {
+                     if let syn::Lit::Str(lit_str) = &name_value.lit {
+                         return Some(lit_str.value());
+                     }
+                 }
+             }         
+        } 
+     };
     None
 }
 
 
 /// `#[name = "0b{:08b}"]` Get the value of the name attribute
-pub fn get_attribute_value(attrs: &Vec<syn::Attribute>, key: &str)-> Option<String>{
+pub fn get_attribute_value(attrs: &[syn::Attribute], key: &str)-> Option<String>{
     for attr in attrs {
         // Meta是NameValue(MetaNameValue)的属性
         if let Ok(syn::Meta::NameValue(syn::MetaNameValue {
@@ -159,54 +144,10 @@ fn get_inner_type<'a>(ty: &'a Type, name:&str) -> (bool, &'a Type) {
     (false, ty)
 }
 
-// Check that the attributes are correct
-// pub fn check_attributes_sql(attrs: &Vec<syn::Attribute>) -> syn::Result<()> {
-//     for attr in attrs.iter() {
-//         if !attr.path.is_ident("sql"){
-//             continue;
-//         }
-//         if let Ok(list) = attr.parse_meta(){
-//             if let syn::Meta::List(list) = list {
-//                 for nested in list.nested.iter() {
-//                     // #[sql(id)]
-//                     if let syn::NestedMeta::Meta(syn::Meta::Path(path)) = nested {
-//                         match path.get_ident() {
-//                             Some(ident) => {
-//                                 let ident = ident.to_string();
-//                                 // println!("ident: {}", ident);
-//                                 if ident != "ignore" && ident != "id" && ident != "table_name" {
-//                                     return Err(syn::Error::new_spanned(
-//                                         attr,
-//                                         "expected #[sql(id)] or #[sql(ignore)]",
-//                                     ));
-//                                 }
-//                             }
-//                             None => {
-//                             }
-//                         }
-                            
-                        
-                        
-//                     }
 
-//                     // #[sql(table_name='')]
-//                     if let syn::NestedMeta::Meta(syn::Meta::NameValue(name_value)) = nested {
-//                         if !name_value.path.is_ident("table_name") {
-//                             return Err(syn::Error::new_spanned(
-//                                 attr,
-//                                 "expected #[sql(table_name='?')]",
-//                             ));
-//                         }
-//                     }
-//                 }
-//             }
-
-//         }
-            
-//     }
-   
-   
-//     Ok(())
-// }
-
-
+#[test]
+fn test_table_name(){
+    let name = "permission";
+    let table_name = name.to_snake_case();
+    println!("table_name: {}", table_name);
+}

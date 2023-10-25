@@ -1,6 +1,6 @@
 [package]
 name = "co-orm"
-version = "0.2.5"
+version = "0.2.6"
 edition = "2021"
 authors = ["plucky"]
 description = "Implement Create, Read, Update, and Delete (CRUD) methods base on sqlx."
@@ -19,7 +19,7 @@ repository = "https://github.com/cody-why/co-orm"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-co-orm-macros = {version ="0.2.5", optional = true}
+co-orm-macros = {version ="0.2.6", optional = true}
 
 # replace latest version with your local version
 [patch.crates-io]
@@ -27,7 +27,7 @@ co-orm-macros = {path = "co-orm-macros"}
 
 
 [dev-dependencies]
-sqlx = { version = "0.6", features = ["mysql", "runtime-tokio-native-tls", "offline"] }
+sqlx = { version = "0.7", features = ["mysql", "runtime-tokio-native-tls"] }
 tokio = { version = "1", features = ["macros"] }
 
 

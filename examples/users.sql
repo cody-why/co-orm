@@ -1,12 +1,14 @@
 -- postgresql
 CREATE TABLE users (
     id BIGSERIAL PRIMARY KEY,
-    name varchar(255)
+    name varchar(50),
+    password varchar(50)
 );
 
 
 -- mysql
 CREATE TABLE users (
-    id BIGINT PRIMARY KEY AUTO_INCREMENT,
-    name varchar(255)
+    id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+    name varchar(255),
+    password varchar(50)
 );
