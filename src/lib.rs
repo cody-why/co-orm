@@ -3,7 +3,7 @@
 /*
  * @Author: plucky
  * @Date: 2022-10-21 16:53:21
- * @LastEditTime: 2023-10-25 21:47:18
+ * @LastEditTime: 2023-10-27 21:29:46
  * @Description: 
  */
 
@@ -51,7 +51,7 @@ pub use co_orm_macros::FromRow;
 
 /// sqlx::query_as的调用
 /// ``` no_run
-/// query_as!(User, "select * from users where name = ?", name)
+/// query_as!(User, "select * from users where name = ?", name).fetch_one(&pool).await
 /// ```
 #[macro_export]
 macro_rules! query_as (
@@ -66,7 +66,7 @@ macro_rules! query_as (
 
 /// sqlx::query的调用
 /// ``` no_run
-/// query!("insert into users (name, password) values (?,?)", name, password)
+/// query!("insert into users (name, password) values (?,?)", name, password).execute(&pool).await
 /// ```
 #[macro_export]
 macro_rules! query (

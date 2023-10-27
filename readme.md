@@ -72,41 +72,42 @@ async fn test_query() {
 
 ```
 
-``` rust
-/// #[derive(Crud)]
-/// get, get_by, qurery, query_by, update, delete, insert, insert_all.
-/// 
-/// attributes:
-/// 
-/// #[orm_pk]
-/// default first field is primary key or set.
-/// 
-/// `#[orm_seq]`
-/// sequence field, auto increment. insert will ignore this field.
-/// 
-/// #[orm_rename= "names"]
-/// rename table name or field name.
-/// default table name by struct name to_snake_case: UserDetail => user_detail.
-/// default field name by field name to_snake_case: UserDetail => user_detail.
-/// 
-/// #[orm_ignore]
-/// ignore field.
-/// 
-/// #[orm_update]
-/// generate method update_xxx. 
-/// 
-/// #[orm_by]
-/// generate query_by_field,update_by_field,delete_by_field.
-///
-/// #[derive(FromRow)]
-/// impl sqlx::FromRow trait.
-/// 
-/// if use `#[derive(FromRow)]` macro, must use `#[derive(Crud)]` macro.
-/// 
-/// if you don't want to use `#[derive(co_orm::FromRow)]` macro, 
-/// you can use `#[derive(sqlx::FromRow)]` macro or impl `sqlx::FromRow` trait.
-/// 
-/// if using sqlx::FromRow, ignore field use `#[orm_ignore]` add `#[sql::defult]`  `#[sqlx(skip)]`.
-
-
 ```
+ #[derive(Crud)]
+ get, get_by, qurery, query_by, update, delete, insert, insert_all.
+ 
+ 
+ attributes:
+ 
+ #[orm_pk]
+ default first field is primary key or set.
+ 
+ `#[orm_seq]`
+ sequence field, auto increment. insert will ignore this field.
+ 
+ #[orm_rename= "names"]
+ rename table name or field name.
+ default table name by struct name to_snake_case: UserDetail => user_detail.
+ default field name by field name to_snake_case: UserDetail => user_detail.
+ 
+ #[orm_ignore]
+ ignore field.
+ 
+ #[orm_update]
+ generate method update_xxx. 
+ 
+ #[orm_by]
+ generate query_by_field,update_by_field,delete_by_field.
+
+ #[derive(FromRow)]
+ impl sqlx::FromRow trait.
+ 
+ if use `#[derive(FromRow)]` macro, must use `#[derive(Crud)]` macro.
+ 
+ if you don't want to use `#[derive(co_orm::FromRow)]` macro, 
+ you can use `#[derive(sqlx::FromRow)]` macro or impl `sqlx::FromRow` trait.
+ 
+ if using sqlx::FromRow, ignore field use `#[orm_ignore]` add `#[sql::defult]`  `#[sqlx(skip)]`.
+```
+
+
