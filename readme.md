@@ -42,14 +42,13 @@ struct User {
     // co_orm(id) // default first field is primary key
     #[co_orm(seq)] // sequence field, insert will ignore this field
     pub id: u64,
-    
+    [co_orm(rename = "name")] // rename field name
     #[co_orm(by)] // generate query_by_field,update_by_field,delete_by_field
     pub name: String,
     #[co_orm(update)] // generate method update_xxx. 
     pub password: String,
     #[co_orm(skip)] // ignore field
     pub addr: Option<String>,
-    // #[co_orm(rename = "age")] // rename field name
     // #[sqlx(skip)]
     // pub age: i32,
 }
