@@ -1,7 +1,7 @@
 /*
  * @Author: plucky
  * @Date: 2022-09-04 00:01:24
- * @LastEditTime: 2023-10-29 21:29:28
+ * @LastEditTime: 2023-10-29 21:47:40
  * @Description: 
  */
 
@@ -46,7 +46,7 @@ mod helper;
 /// generate method update_xxx. 
 /// 
 /// `#[co_orm(by)]`
-/// generate query_by_field,update_by_field,delete_by_field.
+/// generate qet_by_field, query_by_field, update_by_field, delete_by_field.
 /// 
 #[proc_macro_derive(Crud, 
     attributes(
