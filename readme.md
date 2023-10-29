@@ -104,7 +104,7 @@ impl sqlx::FromRow trait.
 
 or use `#[derive(sqlx::FromRow)]` macro or impl `sqlx::FromRow` trait.
 
-if using sqlx::FromRow, change `#[co_orm(skip)]` to `#[sqlx(skip)]` .
+if using sqlx::FromRow, if have `#[co_orm(skip)]` add `#[sqlx(skip)]` .
 
 ```
 
