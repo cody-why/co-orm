@@ -1,7 +1,7 @@
 /*
  * @Author: plucky
  * @Date: 2022-10-21 17:23:16
- * @LastEditTime: 2023-10-29 11:03:31
+ * @LastEditTime: 2023-10-29 12:14:47
  * @Description: 
  */
 fn main() {
@@ -15,20 +15,20 @@ mod tests{
 
     // #[derive(sqlx::FromRow)]
     #[derive(Debug, Crud, FromRow)]
-    #[orm_rename = "users"] // rename table name
+    #[co_orm(rename = "users")] // rename table name
     struct User {
-        // #[orm_pk] // default first field is primary key
-        #[orm_seq] // sequence field, insert will ignore this field
+        // co_orm(id) // default first field is primary key
+        #[co_orm(seq)] // sequence field, insert will ignore this field
         pub id: u64,
         
-        #[orm_by] // generate query_by_field,update_by_field,delete_by_field
-        //#[orm_rename = "name"] // rename field name
+        #[co_orm(by)] // generate query_by_field,update_by_field,delete_by_field
         pub name: String,
-        #[orm_update] // generate method update_xxx. 
+        #[co_orm(update)] // generate method update_xxx. 
         pub password: String,
-        #[orm_ignore] // ignore field
+        #[co_orm(skip)] // ignore field
         pub addr: Option<String>,
-        // #[sqlx(default)]
+        // #[co_orm(rename = "age")] // rename field name
+        // #[sqlx(skip)]
         // pub age: i32,
     }
 
@@ -101,7 +101,7 @@ mod tests{
     #[tokio::test]
     async fn test_insert_all() {
         let pool=get_pool().await.unwrap();
-        let list = vec![User::new(0, "lusy1", "123456"),User::new(0, "lusy2", "123456")];
+        let list = vec![User::new(0, "lusy3", "123456"),User::new(0, "lusy5", "123456")];
         let r =User::insert_all(&pool, list).await.unwrap();
         println!("list: {:?}",r);
 

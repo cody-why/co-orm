@@ -1,7 +1,7 @@
 /*
  * @Author: plucky
  * @Date: 2022-09-04 00:01:24
- * @LastEditTime: 2023-10-25 23:07:43
+ * @LastEditTime: 2023-10-29 12:19:49
  * @Description: 
  */
 
@@ -23,38 +23,39 @@ mod impl_crud;
 
 
 /// `#[derive(Crud)]`
-/// generate get, get_by, query_by, update, delete, insert, insert_all
+/// generate method: get, get_by, query, query_by, update, delete, insert, insert_all.
 /// 
 /// attributes:
 /// 
-/// `#[orm_pk]`
+/// `#[co_orm(id)]`
 /// default first field is primary key or set.
 /// 
-/// `#[orm_seq]`
-/// sequence field, auto increment. insert will ignore this field.
+/// `#[co_orm(seq)]`
+/// sequence field, auto increment. insert will skip this field.
 /// 
-/// `#[orm_rename= "name"]`
+/// `#[co_orm(rename="name")]`
 /// rename table name or field name. 
-/// default table name by struct name to_table_case: UserDetail => user_details. 
+/// default table name by struct name to_table_case: UserDetail => user_detail. 
 /// default field name by field name to_snake_case: UserDetail => user_detail. 
 /// 
-/// `#[orm_ignore]`
+/// `#[co_orm(skip)]`
 /// ignore field.
 /// 
-/// `#[orm_update]`
+/// `#[co_orm(update)]`
 /// generate method update_xxx. 
 /// 
-/// `#[orm_by]`
+/// `#[co_orm(by)]`
 /// generate query_by_field,update_by_field,delete_by_field.
 /// 
 #[proc_macro_derive(Crud, 
     attributes(
-        orm_pk, // default first field is primary key or set
-        orm_seq, // sequence field, auto increment. insert will ignore this field
-        orm_update, // generate method update_xxx. 
-        orm_rename, // rename table name or field name
-        orm_ignore, // ignore field
-        orm_by, // query_by_field,update_by_field,delete_by_field
+        co_orm, // co_orm(id), co_orm(seq), co_orm(rename="name"), co_orm(skip), co_orm(update), co_orm(by),
+        // orm_pk, // default first field is primary key or set
+        // orm_seq, // sequence field, auto increment. insert will skip this field
+        // orm_rename, // rename table name or field name
+        // orm_ignore, // ignore field
+        // orm_update, // generate method update_xxx. 
+        // orm_by, // query_by_field,update_by_field,delete_by_field
     )
 )]
 pub fn sql_derive_crud(input: TokenStream) -> TokenStream{
@@ -67,15 +68,12 @@ pub fn sql_derive_crud(input: TokenStream) -> TokenStream{
     generate_crud(input)
     
 }
-
+/// `#[derive(FromRow)]`
 /// impl sqlx::FromRow trait.
 /// 
-/// if use `#[derive(FromRow)]` macro, must use `#[derive(Crud)]` macro.
+/// or use `#[derive(sqlx::FromRow)]` macro or impl `sqlx::FromRow` trait.
 /// 
-/// if you don't want to use `#[derive(co_orm::FromRow)]` macro, 
-/// you can use `#[derive(sqlx::FromRow)]` macro or impl `sqlx::FromRow` trait.
-/// 
-/// if using sqlx::FromRow, `#[orm_ignore]` add `#[sql::defult]` .
+/// if using sqlx::FromRow, change `#[co_orm(skip)]` to `#[sqlx(skip)]` .
 /// 
 #[proc_macro_derive(FromRow)]
 pub fn sql_derive_form_row(input: TokenStream) -> TokenStream{

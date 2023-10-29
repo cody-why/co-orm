@@ -1,7 +1,7 @@
 /*
  * @Author: plucky
  * @Date: 2022-10-19 17:45:59
- * @LastEditTime: 2022-10-23 21:27:35
+ * @LastEditTime: 2023-10-29 11:58:09
  * @Description: 
  */
 
@@ -9,12 +9,23 @@ use quote::{format_ident, quote, __private::TokenStream};
 use syn::Field;
 use crate::{util::*, db_type::*};
 
+fn has_attribute_update(field: &Field) -> bool {
+    // has_attribute_value(&field.attrs, "sql", "ignore")
+    has_attribute(&field.attrs, "orm_update") |
+    has_attribute_value(&field.attrs, "co_orm", "update")
+}
+
+fn has_attribute_by(field: &Field) -> bool {
+    // has_attribute_value(&field.attrs, "sql", "ignore")
+    has_attribute(&field.attrs, "orm_by") |
+    has_attribute_value(&field.attrs, "co_orm", "by")
+}
 
 /// only update one field
 pub fn generate_update_field(fields: &Vec<&Field>, table_name:&str, id_column: &syn::Ident) -> TokenStream {
     let update_tokens = fields.iter()
         .filter_map(|field| {
-            if has_attribute(&field.attrs, "orm_update") {
+            if has_attribute_update(field) {
 
                 let field_ident = field.ident.as_ref().unwrap();
                 
@@ -59,7 +70,7 @@ pub fn generate_update_field(fields: &Vec<&Field>, table_name:&str, id_column: &
 pub fn generate_crud_by_field(fields: &Vec<&Field>, table_name:&str, update_fields_str:&str,len:usize) -> TokenStream {
     let generate_tokens = fields.iter()
         .filter_map(|field| {
-            if has_attribute(&field.attrs, "orm_by") {
+            if has_attribute_by(field) {
 
                 let field_ident = field.ident.as_ref().unwrap();
                 let (_, field_type) = get_option_type(&field.ty);
@@ -118,10 +129,10 @@ pub fn generate_impl_from_row(fields: &Vec<&Field>, struct_name:&syn::Ident) -> 
     let fields = fields.iter().map(|field| -> TokenStream {
         let field_ident = field.ident.as_ref().unwrap();
         // ignore or rename or option
-        if is_ignore(field) {
+        if is_skip(field) {
             quote!{#field_ident: Default::default(),}
         } else {
-            let field_name = get_attribute_value(&field.attrs, "orm_rename").unwrap_or(field_ident.to_string());
+            let field_name = get_field_name(field);
             let (is_option, _field_type) = get_option_type(&field.ty);
             if is_option {
                 return quote!{#field_ident: sqlx::Row::try_get(row,#field_name).ok(),}

@@ -29,7 +29,7 @@ pub fn generate_crud(input: DeriveInput) -> TokenStream {
     // let fields_all = fields.iter().collect::<Vec<_>>();
 
     // filter ignore fields
-    let fields = fields1.iter().filter(|f| !is_ignore(f)).collect::<Vec<_>>();
+    let fields = fields1.iter().filter(|f| !is_skip(f)).collect::<Vec<_>>();
 
     // insert skip seq field
     let fields_insert = fields.iter().filter(|f| !is_seq(f)).collect::<Vec<_>>();
