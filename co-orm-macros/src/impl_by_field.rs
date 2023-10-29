@@ -1,7 +1,7 @@
 /*
  * @Author: plucky
  * @Date: 2022-10-19 17:45:59
- * @LastEditTime: 2023-10-29 16:10:09
+ * @LastEditTime: 2023-10-29 21:45:46
  * @Description: 
  */
 
@@ -66,6 +66,7 @@ pub fn generate_crud_by_field(fields: &Vec<&Field>, table_name:&str, update_fiel
                 let (_, field_type) = get_option_type(&field.ty);
                 let field_name = get_field_name(field);
                 
+                let fn_get = format_ident!("get_by_{}",field_ident);
                 let fn_query = format_ident!("query_by_{}",field_ident);
                 let fn_delete = format_ident!("delete_by_{}",field_ident);
                 let fn_update = format_ident!("update_by_{}",field_ident);
@@ -75,6 +76,14 @@ pub fn generate_crud_by_field(fields: &Vec<&Field>, table_name:&str, update_fiel
                 let placeholder_u = db_placeholder(len+1);
                 
                 let code = quote!{
+                    
+                    pub async fn #fn_get(pool: &#pool, value:#field_type) ->sqlx::Result<Self>{
+                        let sql = format!("SELECT * FROM {} WHERE {} = {}", #table_name, #field_name, #placeholder);
+                        sqlx::query_as::<_, Self>(&sql)
+                        .bind(value)
+                        .fetch_one(pool).await
+                        
+                    }
                     // #[doc = #doc]
                     pub async fn #fn_query(pool: &#pool, value:#field_type) ->sqlx::Result<Vec<Self>>{
                         let sql = format!("SELECT * FROM {} WHERE {} = {}", #table_name, #field_name, #placeholder);
