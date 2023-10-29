@@ -1,7 +1,7 @@
 /*
  * @Author: plucky
  * @Date: 2022-10-22 18:08:45
- * @LastEditTime: 2023-10-25 22:55:41
+ * @LastEditTime: 2023-10-29 11:01:37
  * @Description: 
  */
 
@@ -185,7 +185,7 @@ pub fn generate_crud(input: DeriveInput) -> TokenStream {
             }
 
             /// insert all list 
-            pub async fn insert_all(pool: &#pool, list: Vec<User>) -> sqlx::Result<u64> {
+            pub async fn insert_all(pool: &#pool, list: Vec<Self>) -> sqlx::Result<u64> {
                 let sql = format!("INSERT INTO {} ({}) ", #table_name, #columns);
                 let mut qb = sqlx::QueryBuilder::new(sql);
         
