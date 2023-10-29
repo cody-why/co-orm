@@ -35,22 +35,22 @@ tokio = { version = "1", features = ["macros"] }
 
 ## Examples
 ```rust
-use co_orm::{Crud, FromRow};
+// #[derive(sqlx::FromRow)]
 #[derive(Debug, Crud, FromRow)]
-#[orm_rename = "users"] // rename table name
+#[co_orm(rename = "users")] // rename table name
 struct User {
-    // #[orm_pk] // default first field is primary key
-    #[orm_seq] // sequence field, insert will ignore this field
+    // co_orm(id) // default first field is primary key
+    #[co_orm(seq)] // sequence field, insert will ignore this field
     pub id: u64,
     
-    #[orm_by] // generate query_by_field,update_by_field,delete_by_field
-    //#[orm_rename = "name"] // rename field name
+    #[co_orm(by)] // generate query_by_field,update_by_field,delete_by_field
     pub name: String,
-    #[orm_update] // generate method update_xxx. 
+    #[co_orm(update)] // generate method update_xxx. 
     pub password: String,
-    #[orm_ignore] // ignore field
+    #[co_orm(skip)] // ignore field
     pub addr: Option<String>,
-    // #[sqlx(default)]
+    // #[co_orm(rename = "age")] // rename field name
+    // #[sqlx(skip)]
     // pub age: i32,
 }
 
