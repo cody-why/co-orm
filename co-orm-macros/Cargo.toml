@@ -1,6 +1,6 @@
 [package]
 name = "co-orm-macros"
-version = "0.2.8"
+version = "0.2.9"
 edition = "2021"
 authors = ["plucky"]
 description = "Derive macro implement Create, Read, Update, and Delete (CRUD) methods base on sqlx."

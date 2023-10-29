@@ -1,7 +1,7 @@
 /*
  * @Author: plucky
  * @Date: 2022-10-22 18:08:45
- * @LastEditTime: 2023-10-29 11:01:37
+ * @LastEditTime: 2023-10-29 16:09:57
  * @Description: 
  */
 
@@ -10,7 +10,7 @@ use quote::quote;
 use syn::{Data, DataStruct, DeriveInput, Fields};
 use crate::db_type::*;
 use crate::impl_by_field::*;
-use crate::util::*;
+use crate::helper::*;
 
 
 

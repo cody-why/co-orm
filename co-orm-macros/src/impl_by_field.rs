@@ -1,25 +1,15 @@
 /*
  * @Author: plucky
  * @Date: 2022-10-19 17:45:59
- * @LastEditTime: 2023-10-29 11:58:09
+ * @LastEditTime: 2023-10-29 16:10:09
  * @Description: 
  */
 
 use quote::{format_ident, quote, __private::TokenStream};
 use syn::Field;
-use crate::{util::*, db_type::*};
+use crate::{helper::*, db_type::*, util::get_option_type};
 
-fn has_attribute_update(field: &Field) -> bool {
-    // has_attribute_value(&field.attrs, "sql", "ignore")
-    has_attribute(&field.attrs, "orm_update") |
-    has_attribute_value(&field.attrs, "co_orm", "update")
-}
 
-fn has_attribute_by(field: &Field) -> bool {
-    // has_attribute_value(&field.attrs, "sql", "ignore")
-    has_attribute(&field.attrs, "orm_by") |
-    has_attribute_value(&field.attrs, "co_orm", "by")
-}
 
 /// only update one field
 pub fn generate_update_field(fields: &Vec<&Field>, table_name:&str, id_column: &syn::Ident) -> TokenStream {
@@ -37,7 +27,7 @@ pub fn generate_update_field(fields: &Vec<&Field>, table_name:&str, id_column: &
                 let (pool, query_result) = db_pool_token();
                 let placeholder = db_placeholder(1);
                 
-                let field_name = get_attribute_value(&field.attrs, "orm_rename").unwrap_or(field_ident.to_string());
+                let field_name = get_field_name(field);
                 let set_sql = format!("{} = {}", field_name, placeholder);
                 let doc = format!("only update one field {}", field_ident);
                 let placeholder = db_placeholder(2);
@@ -74,7 +64,7 @@ pub fn generate_crud_by_field(fields: &Vec<&Field>, table_name:&str, update_fiel
 
                 let field_ident = field.ident.as_ref().unwrap();
                 let (_, field_type) = get_option_type(&field.ty);
-                let field_name = get_attribute_value(&field.attrs, "orm_rename").unwrap_or(field_ident.to_string());
+                let field_name = get_field_name(field);
                 
                 let fn_query = format_ident!("query_by_{}",field_ident);
                 let fn_delete = format_ident!("delete_by_{}",field_ident);
