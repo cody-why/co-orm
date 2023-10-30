@@ -26,8 +26,6 @@
 co-orm = { virsion = "0.2", features = ["mysql"] }
 sqlx = { version = "0.7", features = ["mysql","runtime-tokio-native-tls"] }
 
-[dev-dependencies]
-tokio = { version = "1", features = ["macros"] }
 
  ```
  
