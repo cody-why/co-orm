@@ -1,7 +1,7 @@
 /*
  * @Author: plucky
  * @Date: 2022-10-21 17:23:16
- * @LastEditTime: 2023-10-29 16:17:41
+ * @LastEditTime: 2023-10-31 18:29:23
  * @Description: 
  */
 fn main() {
@@ -11,13 +11,14 @@ fn main() {
 #[cfg(test)]
 mod tests{
     #![allow(unused)]
-    use co_orm::{Crud, FromRow};
+    use co_orm::{Crud, FromRow, sql_args};
+    use sqlx::{Execute, MySql};
 
     // #[derive(sqlx::FromRow)]
     #[derive(Debug, Crud, FromRow)]
     #[co_orm(rename = "users")] // rename table name
     struct User {
-        // co_orm(id) // default first field is primary key
+        // anorm(id) // default first field is primary key
         #[co_orm(seq)] // sequence field, insert will ignore this field
         pub id: u64,
         #[co_orm(rename = "name")] // rename field name
@@ -51,15 +52,18 @@ mod tests{
     #[tokio::test]
     async fn test_query() {
         let pool=get_pool().await.unwrap();
-        
+
         let u = User::get(&pool, 1).await;
         println!("get {:?}", u);
-        let u = User::get_by(&pool, "where id=1").await;
+        let u = User::get_by(&pool, "where id=?", sql_args!(1)).await;
         println!("get_by {:?}", u);
         let u = User::query_by_name(&pool, "plucky".into()).await;
         println!("query_by_name {:?}", u);
         let u =User::query(&pool).await;
         println!("list {:?}",u);
+
+        let u = User::query_by(&pool, "where id=? or id =?", sql_args!(1, 2)).await;
+        println!("query_by {:?}", u);
     }
 
     #[tokio::test]
@@ -68,11 +72,11 @@ mod tests{
 
         let _u = User::new(2, "jack", "123456");
         
-        let r = _u.update(&pool).await.unwrap();
+        let r = _u.update(&pool).await;
         dbg!(r);
-        let r = _u.update_by(&pool,"where id=2").await.unwrap();
+        let r = _u.update_by(&pool,format!("where id={}",100)).await;
         dbg!(r);
-        let r =  _u.update_password(&pool).await.unwrap();
+        let r =  _u.update_password(&pool).await;
         dbg!(r);
         
     }
@@ -81,7 +85,7 @@ mod tests{
     async fn test_insert() {
         let pool=get_pool().await.unwrap();
         let _u = User::new(0, "lusy", "123456");
-        let r =_u.insert(&pool).await.unwrap();
+        let r =_u.insert(&pool).await;
         println!("list: {:?}",r);
     }
 
@@ -90,11 +94,11 @@ mod tests{
         let pool=get_pool().await.unwrap();
         
         let _u = User::new(10, "lusy", "123456");
-        let r = _u.delete(&pool).await.unwrap();
+        let r = _u.delete(&pool).await;
         println!("delete: {:?}",r);
-        let r =User::delete_by(&pool, "where name='leo'").await.unwrap();
+        let r =User::delete_by(&pool, "where name=?", sql_args!("leo")).await;
         println!("delete: {:?}",r);
-        let r =User::delete_by_name(&pool, "lusy".into()).await.unwrap();
+        let r =User::delete_by_name(&pool, "lusy".into()).await;
         println!("delete: {:?}",r);
     }
 
@@ -102,10 +106,28 @@ mod tests{
     async fn test_insert_all() {
         let pool=get_pool().await.unwrap();
         let list = vec![User::new(0, "lusy3", "123456"),User::new(0, "lusy5", "123456")];
-        let r =User::insert_all(&pool, list).await.unwrap();
+        let r =User::insert_all(&pool, list).await;
         println!("list: {:?}",r);
 
     }
 
+    #[tokio::test]
+    async fn test_args() {
+        use sqlx::Arguments;
+        
+        let args= sql_args!(1, "plucky");
+        let sql = "select * from users where id = ? and name = ?";
+        let sql = sqlx::query_as_with::<_,User, _>(sql,args).sql();
+        println!("sql {:?}", sql);
+
+        let mut qb: sqlx::QueryBuilder<'_, sqlx::MySql> = sqlx::QueryBuilder::new("select * from users ");
+        qb.push("where id=")
+            .push_bind(1)
+            .push(" or name=")
+            .push_bind("plucky");
+        println!("qb {:?}", qb.sql());
+
+    }
+   
     
 }

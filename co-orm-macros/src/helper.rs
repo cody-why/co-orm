@@ -1,18 +1,20 @@
 /*
  * @Author: plucky
  * @Date: 2023-10-29 15:56:49
- * @LastEditTime: 2023-10-29 16:11:41
+ * @LastEditTime: 2023-10-31 18:19:50
  */
 
 use inflector::Inflector;
 use syn::{Field, DeriveInput};
 
-use crate::util::*;
+use crate::{util::*, db_type::db_placeholder};
 
 
 /// skip field
 pub(crate) fn is_skip(field: &Field) -> bool {
-    has_attribute_value(&field.attrs, "co_orm", "skip")
+    // has_attribute(&field.attrs, "orm_ignore") |
+    has_attribute_value(&field.attrs, "anorm", "skip") |
+    has_attribute_value(&field.attrs, "sqlx", "skip")
 }
 
 /// primary key
@@ -50,6 +52,14 @@ pub(crate) fn has_attribute_by(field: &Field) -> bool {
     has_attribute_value(&field.attrs, "co_orm", "by")
 }
 
+// make string "?, ?, ?" or "$1, $2, $3"
+pub(crate) fn question_marks(max: usize) -> String {
+    let itr = 1..max + 1;
+    itr.into_iter()
+        .map(db_placeholder)
+        .collect::<Vec<String>>()
+        .join(",")
+}
 
 #[test]
 fn test_table_name(){

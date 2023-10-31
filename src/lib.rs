@@ -3,7 +3,7 @@
 /*
  * @Author: plucky
  * @Date: 2022-10-21 16:53:21
- * @LastEditTime: 2023-10-27 21:29:46
+ * @LastEditTime: 2023-10-31 18:24:20
  * @Description: 
  */
 
@@ -39,9 +39,9 @@
 //! }
 //! 
 //! // use crud
-//! let u = User::get(&pool, 1).await.unwrap();
+//! let u = User::get(&pool, 1).await;
 //! println!("get {:?}", u);
-//! let u = User::get_by(&pool, "where id=1").await.unwrap();
+//! let u = User::get_by(&pool, "where id=?", sql_args!(1)).await;
 //! println!("get_by {:?}", u);
 //! ```
 
@@ -49,7 +49,7 @@ pub use co_orm_macros::Crud;
 pub use co_orm_macros::FromRow;
 
 
-/// sqlx::query_as的调用
+/// sqlx::query_as
 /// ``` no_run
 /// query_as!(User, "select * from users where name = ?", name).fetch_one(&pool).await
 /// ```
@@ -64,7 +64,7 @@ macro_rules! query_as (
     })
 );
 
-/// sqlx::query的调用
+/// sqlx::query
 /// ``` no_run
 /// query!("insert into users (name, password) values (?,?)", name, password).execute(&pool).await
 /// ```
@@ -79,4 +79,42 @@ macro_rules! query (
     })
 );
 
+/// # Examples
+///
+/// ```no_run
+/// 
+/// let args = sql_args!(&name, age);
+/// ```
+#[macro_export]
+macro_rules! sql_args {
 
+    // ($sql:expr) => {
+    //     sql_args!($sql,);
+    // };
+    
+    ($($args:expr),*) => {{
+        use sqlx::Arguments;
+        #[cfg(feature = "mysql")]{
+            let mut sqlargs = sqlx::mysql::MySqlArguments::default();
+            $(sqlargs.add($args);)*
+            sqlargs
+        }
+        #[cfg(feature = "postgres")]{
+            let mut sqlargs = sqlx::postgres::PgArguments::default();
+            $(sqlargs.add($args);)*
+            sqlargs
+        }
+        #[cfg(feature = "mssql")]{
+            let mut sqlargs = sqlx::mysql::MySqlArguments::default();
+            $(sqlargs.add($args);)*
+            sqlargs
+        }
+        #[cfg(feature = "sqlite")]{
+            let mut sqlargs = sqlx::sqlite::SqliteArguments::default();
+            $(sqlargs.add($args);)*
+            sqlargs
+        }
+        // let mut sqlargs = sqlx::any::AnyArguments::default();
+       
+    }};
+}
