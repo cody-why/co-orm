@@ -23,7 +23,7 @@
  adding the following to your project's Cargo.toml:
  ```toml
 [dependencies]
-co-orm = { virsion = "0.2", features = ["mysql"] }
+co-orm = { virsion = "0.3", features = ["mysql"] }
 sqlx = { version = "0.7", features = ["mysql","runtime-tokio-native-tls"] }
 
 
@@ -60,10 +60,23 @@ pub async fn get_pool() -> Result<MySqlPool> {
 #[tokio::test]
 async fn test_query() {
     let pool=get_pool().await.unwrap();
-    let u = User::get(&pool, 1).await.unwrap();
+    let u = User::get(&pool, 1).await;
     println!("get {:?}", u);
-    let u = User::get_by(&pool, "where id=1").await.unwrap();
-    println!("get {:?}", u);
+    let u = User::get_by(&pool, "where id=?", sql_args!(1)).await;
+    println!("get_by {:?}", u);
+    let u = User::query_by_name(&pool, "plucky".into()).await;
+    println!("query_by_name {:?}", u);
+    let u =User::query(&pool).await;
+    println!("list {:?}",u);
+
+    // u.update(&pool).await;
+    // u.insert(&pool).await;
+    // u.delete(&pool).await
+
+    // let list = vec![User::new(0, "lusy3", "123456"),User::new(0, "lusy5", "123456")];
+    // let r =User::insert_all(&pool, list).await;
+    // println!("list: {:?}",r);
+    
     
 }
 
