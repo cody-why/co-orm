@@ -1,7 +1,7 @@
 /*
  * @Author: plucky
  * @Date: 2022-10-21 17:23:16
- * @LastEditTime: 2023-10-31 18:29:23
+ * @LastEditTime: 2023-10-31 18:39:11
  * @Description: 
  */
 fn main() {
@@ -18,7 +18,7 @@ mod tests{
     #[derive(Debug, Crud, FromRow)]
     #[co_orm(rename = "users")] // rename table name
     struct User {
-        // anorm(id) // default first field is primary key
+        // #[co_orm(id)] // default first field is primary key
         #[co_orm(seq)] // sequence field, insert will ignore this field
         pub id: u64,
         #[co_orm(rename = "name")] // rename field name
