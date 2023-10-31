@@ -20,7 +20,7 @@
 </div>
 
 ## Use
- adding the following to your project's Cargo.toml:
+ add the following to your project's Cargo.toml:
  ```toml
 [dependencies]
 co-orm = { virsion = "0.3", features = ["mysql"] }
@@ -81,45 +81,53 @@ async fn test_query() {
 }
 
 ```
-### #[derive(Crud)]
-```
-`#[derive(FromRow)]`
+
+
+## `#[derive(Crud)]`
+
 generate method: get, get_by, query, query_by, update, delete, insert, insert_all.
 
-attributes:
+### attributes:
 
 `#[co_orm(id)]`
+
 default first field is primary key or set.
 
 `#[co_orm(seq)]`
+
 sequence field, auto increment. insert will skip this field.
 
 `#[co_orm(rename="name")]`
+
 rename table name or field name. 
 default table name by struct name to_table_case: UserDetail => user_detail. 
 default field name by field name to_snake_case: UserDetail => user_detail. 
 
 `#[co_orm(skip)]`
+
 ignore field.
 
 `#[co_orm(update)]`
+
 generate method update_xxx. 
 
 `#[co_orm(by)]`
+
 generate qet_by_field, query_by_field, update_by_field, delete_by_field.
-```
-### #[derive(FromRow)]
-```
-`#[derive(FromRow)]`
+
+
+
+## `#[derive(FromRow)]`
+
 impl sqlx::FromRow trait.
 
 or use `#[derive(sqlx::FromRow)]` macro or impl `sqlx::FromRow` trait.
 
 if using sqlx::FromRow, if have `#[co_orm(skip)]` add `#[sqlx(skip)]` .
 
-```
 
-### macro_export
+## macro_export
+
 
 `sql_args`
 ``` rust
@@ -135,5 +143,3 @@ query!("insert into users (name, password) values (?,?)", name, password).execut
 ```rust
 query_as!(User, "select * from users where name = ?", name).fetch_one(&pool).await
 ```
-
-
