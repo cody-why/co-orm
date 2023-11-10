@@ -8,7 +8,7 @@
   </a>
   
   <!-- Docs -->
-  <a href="https://docs.rs/co-orm">
+  <a href="https://docs.rs/crate/co-orm">
     <img src="https://img.shields.io/badge/docs-latest-blue.svg?style=flat-square"
       alt="docs.rs docs" />
   </a>
