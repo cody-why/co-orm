@@ -1,7 +1,7 @@
 /*
  * @Author: plucky
  * @Date: 2022-10-19 17:45:59
- * @LastEditTime: 2023-10-31 18:21:15
+ * @LastEditTime: 2023-11-12 20:06:15
  * @Description: 
  */
 
@@ -12,7 +12,7 @@
  
  
  /// only update one field
- pub fn generate_update_field(fields: &Vec<&Field>, table_name:&str, id_column: &syn::Ident) -> TokenStream {
+ pub fn generate_update_field(fields: &[&Field], table_name:&str, id_column: &syn::Ident) -> TokenStream {
      let update_tokens = fields.iter()
          .filter_map(|field| {
              if has_attribute_update(field) {
@@ -57,7 +57,7 @@
  
  
  /// query_by_field,update_by_field,delete_by_field
- pub fn generate_crud_by_field(fields: &Vec<&Field>, table_name:&str, update_fields_str:&str,columns_all:&str,len:usize) -> TokenStream {
+ pub fn generate_crud_by_field(fields: &[&Field], table_name:&str, update_fields_str:&str,columns_all:&str,len:usize) -> TokenStream {
      let generate_tokens = fields.iter()
          .filter_map(|field| {
              if has_attribute_by(field) {
@@ -123,7 +123,7 @@
  }
  
  /// impl sqlx::FromRow
- pub fn generate_impl_from_row(fields: &Vec<&Field>, struct_name:&syn::Ident) -> TokenStream {
+ pub fn generate_impl_from_row(fields: &[&Field], struct_name:&syn::Ident) -> TokenStream {
      let fields = fields.iter().map(|field| -> TokenStream {
          let field_ident = field.ident.as_ref().unwrap();
          // ignore or rename or option

@@ -7,73 +7,68 @@
 #![allow(unused)]
 
 
-use syn::{Field, DeriveInput, Type};
+use syn::{Field, DeriveInput, Type, LitStr};
 use inflector::Inflector;
 
 
 
 /// `#[name(value)]` attribute value exist or not
 pub(crate) fn has_attribute_value(attrs: &[syn::Attribute], name: &str, value: &str) -> bool {
+    // println!("name: {}, value: {}", name, value);
     for attr in attrs.iter() {
-        if !attr.path.is_ident(name){
+        if !attr.path().is_ident(name){
             continue;
         }
-        if let Ok(syn::Meta::List(list)) = attr.parse_meta(){
-            for nested in list.nested.iter() {
-                if let syn::NestedMeta::Meta(syn::Meta::Path(path)) = nested {
-                    if path.is_ident(value) {
-                        return true;
-                    }
-        
-                }
-            }
 
+        let f = attr.parse_nested_meta(|meta| {
+            if meta.path.is_ident(value) {
+                return Ok(());
+            }
+            Err(meta.error("attribute value not found"))
+        });
+        if f.is_ok(){
+            return true;
         }
-          
+        
     }
     false
 }
 
 /// `#[name]` attribute name exist or not
 pub(crate) fn has_attribute(attrs: &[syn::Attribute], name: &str) -> bool {
-    attrs.iter().any(|attr| attr.path.is_ident(name))
+    attrs.iter().any(|attr| attr.path().is_ident(name))
 }
 
 /// `#[name(key="val")]` Get the value of the name attribute by key
 pub(crate) fn get_attribute_by_key(attrs: &[syn::Attribute], name: &str, key: &str) -> Option<String> {
-    if let Some(Ok(syn::Meta::List(list))) = attrs.iter()
-         .find(|a| a.path.is_ident(name))
-         .map(|a| a.parse_meta()) {
-         for nested in list.nested.iter() {
-             if let syn::NestedMeta::Meta(syn::Meta::NameValue(name_value)) = nested {
-                 if name_value.path.is_ident(key) {
-                     if let syn::Lit::Str(lit_str) = &name_value.lit {
-                         return Some(lit_str.value());
-                     }
-                 }
-             }         
-        } 
-     };
-    None
+    let mut v: Option<String> = None;
+    for attr in attrs.iter() {
+        if !attr.path().is_ident(name){
+            continue;
+        }
+      
+        attr.parse_nested_meta(|meta| {
+            if meta.path.is_ident(key) {
+                let value = meta.value()?;   // this parses the `=`
+                let s: LitStr = value.parse()?;  // this parses `"val"`
+                v = Some(s.value());
+                return  Ok(());
+            }
+            Err(meta.error("attribute value not found"))
+        }).ok();
+    }
+    v
+
 }
 
 
 /// `#[name = "0b{:08b}"]` Get the value of the name attribute
 pub(crate) fn get_attribute_value(attrs: &[syn::Attribute], key: &str)-> Option<String>{
     for attr in attrs {
-        // Meta是NameValue(MetaNameValue)的属性
-        if let Ok(syn::Meta::NameValue(syn::MetaNameValue {
-            ref path,
-            ref lit,
-            ..
-        }))=attr.parse_meta() {
-            if path.is_ident(key) {
-                if let syn::Lit::Str(ref s) = lit {
-                    return Some(s.value());
-                }
-            }
+        if attr.path().is_ident(key) {
+            let value = attr.parse_args::<syn::LitStr>().unwrap();
+            return Some(value.value());
         }
-
     }
     None
 }

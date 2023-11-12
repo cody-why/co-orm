@@ -1,4 +1,4 @@
-# Rust derive macro implement Create, Read, Update, and Delete (CRUD) methods base on sqlx.
+# Implement Create, Read, Update, and Delete (CRUD) methods for sqlx.
 
 <div align="center">
   <!-- Version -->

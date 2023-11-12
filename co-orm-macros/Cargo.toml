@@ -1,15 +1,16 @@
 [package]
 name = "co-orm-macros"
-version = "0.3.0"
+version = "0.3.1"
 edition = "2021"
 authors = ["plucky"]
-description = "Derive macro implement Create, Read, Update, and Delete (CRUD) methods base on sqlx."
+description = "Derive macro for co-orm"
 #documentation = "https://docs.rs/co_orm/"
 readme = "../readme.md"
 keywords = [
     "orm",
     "sqlx",
     "crud",
+    "sql",
 ]
 categories = ["database"]
 license = "MIT OR Apache-2.0"
@@ -17,7 +18,7 @@ repository = "https://github.com/cody-why/co-orm"
 
 [dependencies]
 quote = "1.0"
-syn = {version = "1", features = ["extra-traits",]}
+syn = {version = "2", features = ["extra-traits",]}
 Inflector = "0"
 
 [lib]

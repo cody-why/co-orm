@@ -1,7 +1,7 @@
 /*
  * @Author: plucky
  * @Date: 2023-10-29 15:56:49
- * @LastEditTime: 2023-10-31 18:19:50
+ * @LastEditTime: 2023-11-12 20:14:07
  */
 
 use inflector::Inflector;
@@ -13,7 +13,7 @@ use crate::{util::*, db_type::db_placeholder};
 /// skip field
 pub(crate) fn is_skip(field: &Field) -> bool {
     // has_attribute(&field.attrs, "orm_ignore") |
-    has_attribute_value(&field.attrs, "anorm", "skip") |
+    has_attribute_value(&field.attrs, "co_orm", "skip") |
     has_attribute_value(&field.attrs, "sqlx", "skip")
 }
 
