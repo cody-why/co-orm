@@ -4,7 +4,7 @@ version = "0.3.1"
 edition = "2021"
 authors = ["plucky"]
 description = "Derive macro for co-orm"
-#documentation = "https://docs.rs/co_orm/"
+
 readme = "../readme.md"
 keywords = [
     "orm",
@@ -15,6 +15,7 @@ keywords = [
 categories = ["database"]
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/cody-why/co-orm"
+documentation = "https://docs.rs/crate/co-orm/"
 
 [dependencies]
 quote = "1.0"
