@@ -1,15 +1,7 @@
-/***
- * @Author: plucky
- * @Date: 2022-09-05 01:05:21
- * @LastEditTime: 2022-09-14 01:10:23
- * @Description: 
- */
+
 #![allow(unused)]
 
-
-use syn::{Field, DeriveInput, Type, LitStr};
-use inflector::Inflector;
-
+use syn::{Type, LitStr};
 
 
 /// `#[name(value)]` attribute value exist or not
@@ -41,7 +33,7 @@ pub(crate) fn has_attribute(attrs: &[syn::Attribute], name: &str) -> bool {
 
 /// `#[name(key="val")]` Get the value of the name attribute by key
 pub(crate) fn get_attribute_by_key(attrs: &[syn::Attribute], name: &str, key: &str) -> Option<String> {
-    let mut v: Option<String> = None;
+    let mut val: Option<String> = None;
     for attr in attrs.iter() {
         if !attr.path().is_ident(name){
             continue;
@@ -50,29 +42,82 @@ pub(crate) fn get_attribute_by_key(attrs: &[syn::Attribute], name: &str, key: &s
         attr.parse_nested_meta(|meta| {
             if meta.path.is_ident(key) {
                 let value = meta.value()?;   // this parses the `=`
-                let s: LitStr = value.parse()?;  // this parses `"val"`
-                v = Some(s.value());
+                let v: LitStr = value.parse()?;  // this parses `"val"`
+                val = Some(v.value());
                 return  Ok(());
             }
             Err(meta.error("attribute value not found"))
         }).ok();
     }
-    v
+    val
 
 }
 
 
-/// `#[name = "0b{:08b}"]` Get the value of the name attribute
+/// `#[name = "value"]` Get the value of the name attribute
 pub(crate) fn get_attribute_value(attrs: &[syn::Attribute], key: &str)-> Option<String>{
     for attr in attrs {
         if attr.path().is_ident(key) {
-            let value = attr.parse_args::<syn::LitStr>().unwrap();
-            return Some(value.value());
+            // #[name = "value"]
+           let r = attr.meta.require_name_value();
+           if let Ok(v) = r {
+                if let  syn::Expr::Lit(v) = &v.value {
+                    match &v.lit {
+                        syn::Lit::Str(s) => {
+                            return Some(s.value());
+                        }
+                        syn::Lit::Int(i) => {
+                            return Some(i.to_string());
+                        }
+                        syn::Lit::Float(f) => {
+                            return Some(f.to_string());
+                        }
+                        syn::Lit::Bool(b) => {
+                            return Some(b.value().to_string());
+                        }
+                       
+                        _ => {}
+                        
+                    }
+                }
+            
+           }
+          
         }
     }
     None
 }
 
+/// `#[name(arg)]` Get the arg of the name attribute
+pub(crate) fn get_attribute_arg(attrs: &[syn::Attribute], key: &str)-> Option<String>{
+    for attr in attrs {
+        if attr.path().is_ident(key) {
+           let r = attr.parse_args::<syn::Lit>();
+           if let Ok(v) = r {
+                println!("v: {:?}", v);
+                match &v {
+                    syn::Lit::Str(s) => {
+                        return Some(s.value());
+                    }
+                    syn::Lit::Int(i) => {
+                        return Some(i.to_string());
+                    }
+                    syn::Lit::Float(f) => {
+                        return Some(f.to_string());
+                    }
+                    syn::Lit::Bool(b) => {
+                        return Some(b.value().to_string());
+                    }
+                    _ => {}
+                    
+                }
+           }
+          
+        }
+    }
+    None
+
+}
 /// whether `Option<inner_type>` returns (whether Option, inner_type).
 pub(crate) fn get_option_type(ty: &Type) -> (bool, &Type){
     get_inner_type(ty, "Option")
@@ -105,3 +150,20 @@ pub(crate) fn get_inner_type<'a>(ty: &'a Type, name:&str) -> (bool, &'a Type) {
     (false, ty)
 }
 
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_name() {
+        let attr: syn::Attribute = syn::parse_quote!(#[name = "0b{:08b}"]);
+        // println!("attr: {:?}", attr);
+        let v = get_attribute_value(&[attr], "name");
+        println!("v: {:?}", v);
+        // assert_eq!(v, Some("0b{:08b}".to_string()));
+
+        let attr: syn::Attribute = syn::parse_quote!(#[name("yes")]);
+        let v = get_attribute_arg(&[attr], "name");
+        println!("v: {:?}", v);
+    }
+}

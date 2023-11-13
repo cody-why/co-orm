@@ -1,7 +1,7 @@
 /*
  * @Author: plucky
  * @Date: 2023-10-29 15:56:49
- * @LastEditTime: 2023-11-12 20:14:07
+ * @LastEditTime: 2023-11-13 08:11:30
  */
 
 use inflector::Inflector;
@@ -11,6 +11,7 @@ use crate::{util::*, db_type::db_placeholder};
 
 
 /// skip field
+/// `#[co_orm(skip)]`
 pub(crate) fn is_skip(field: &Field) -> bool {
     // has_attribute(&field.attrs, "orm_ignore") |
     has_attribute_value(&field.attrs, "co_orm", "skip") |
@@ -18,6 +19,7 @@ pub(crate) fn is_skip(field: &Field) -> bool {
 }
 
 /// primary key
+/// `#[co_orm(id)]`
 pub(crate) fn is_id(field: &Field) -> bool {
     has_attribute_value(&field.attrs, "co_orm", "id")
 }
@@ -27,6 +29,7 @@ pub(crate) fn is_seq(field: &Field) -> bool {
 }
 
 /// table_name
+/// `#[co_orm(rename = "users")]`
 pub(crate) fn get_table_name(input: &DeriveInput) -> String {
     // to_table_case: UserDetail => user_details
     // to_snake_case: UserDetail => user_detail
@@ -37,6 +40,7 @@ pub(crate) fn get_table_name(input: &DeriveInput) -> String {
 }
 
 /// field_name if rename
+/// `#[co_orm(rename = "name")]`
 pub(crate) fn get_field_name(field: &Field) -> String {
     get_attribute_by_key(&field.attrs, "co_orm","rename").unwrap_or_else(|| {
         field.ident.as_ref().unwrap().to_string().to_snake_case()
@@ -44,10 +48,12 @@ pub(crate) fn get_field_name(field: &Field) -> String {
     
 }
 
+/// `#[co_orm(update)]`
 pub(crate) fn has_attribute_update(field: &Field) -> bool {
     has_attribute_value(&field.attrs, "co_orm", "update")
 }
 
+/// `#[co_orm(by)]`
 pub(crate) fn has_attribute_by(field: &Field) -> bool {
     has_attribute_value(&field.attrs, "co_orm", "by")
 }
