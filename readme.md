@@ -85,7 +85,7 @@ async fn test_query() {
 
 ## `#[derive(Crud)]`
 
-generate method: get, get_by, query, query_by, update, delete, insert, insert_all.
+generate method: get, get_by, query, query_by, update, delete, insert, insert_all, query_page_by
 
 ### attributes:
 

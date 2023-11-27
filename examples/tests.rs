@@ -1,7 +1,7 @@
 /*
  * @Author: plucky
  * @Date: 2022-10-21 17:23:16
- * @LastEditTime: 2023-11-13 08:10:23
+ * @LastEditTime: 2023-11-27 18:17:58
  * @Description: 
  */
 fn main() {
@@ -11,8 +11,8 @@ fn main() {
 #[cfg(test)]
 mod tests{
     #![allow(unused)]
-    use co_orm::{Crud, FromRow, sql_args};
-    use sqlx::{Execute, MySql};
+    use co_orm::{Crud, FromRow, sql_args, query, query_as};
+    use sqlx::{Execute, MySql, Row};
 
     // #[derive(sqlx::FromRow)]
     #[derive(Debug, Crud, FromRow)]
@@ -105,10 +105,22 @@ mod tests{
     #[tokio::test]
     async fn test_insert_all() {
         let pool=get_pool().await.unwrap();
-        let list = vec![User::new(0, "lusy3", "123456"),User::new(0, "lusy5", "123456")];
+        let list = vec![User::new(0, "lusy1", "123456"),User::new(0, "lusy2", "123456")];
         let r =User::insert_all(&pool, list).await;
         println!("list: {:?}",r);
 
+    }
+
+    #[tokio::test]
+    async fn test_page() {
+        let pool=get_pool().await.unwrap();
+        let r =User::query_page_by(&pool, "where id>?", sql_args!(1), 1, 10).await;
+
+        // println!("count: {:?}",r);
+        if let Ok((count, list)) = r {
+            println!("count: {}, list: {:?}", count, list);
+        }
+        
     }
 
     #[tokio::test]

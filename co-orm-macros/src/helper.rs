@@ -1,8 +1,10 @@
 /*
  * @Author: plucky
  * @Date: 2023-10-29 15:56:49
- * @LastEditTime: 2023-11-13 08:11:30
+ * @LastEditTime: 2023-11-27 18:43:47
  */
+
+use std::collections::HashSet;
 
 use inflector::Inflector;
 use syn::{Field, DeriveInput};
@@ -66,6 +68,42 @@ pub(crate) fn question_marks(max: usize) -> String {
         .collect::<Vec<String>>()
         .join(",")
 }
+
+#[allow(unused)]
+pub (crate) fn check_attributes(attrs: &[syn::Attribute])-> Result<(), syn::Error> {
+    // 检查属性是否 co_orm(id), co_orm(seq), co_orm(rename="name"), co_orm(skip), co_orm(update), co_orm(by),
+    let valid_attrs: HashSet<_> = [
+        "rename",
+        "id",
+        "by",
+        "seq",
+        "skip",
+        "update",
+    ].iter().cloned().collect();
+    
+    for attr in attrs {
+        if attr.path().is_ident("co_orm") {
+            let pass = attr.parse_nested_meta(|meta| {
+                // println!("path: {:?}", meta.path);
+                let ident = meta.path.get_ident().unwrap().to_string();
+                if valid_attrs.contains(ident.as_str()) {
+                    return Ok(());
+                }
+                Err(meta.error("unrecognized repr"))
+            });
+
+            if let Err(e) = pass  {
+                if e.to_string().contains("unrecognized repr") {
+                    return Err(e)
+                }
+            }
+           
+        }
+    }
+    Ok(())
+
+}
+
 
 #[test]
 fn test_table_name(){

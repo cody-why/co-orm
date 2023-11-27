@@ -1,13 +1,14 @@
 /*
  * @Author: plucky
  * @Date: 2022-09-04 00:01:24
- * @LastEditTime: 2023-10-29 21:47:40
+ * @LastEditTime: 2023-11-27 18:47:25
  * @Description: 
  */
 
 
 extern crate proc_macro;
 
+use helper::check_attributes;
 use impl_by_field::*;
 use proc_macro::TokenStream;
 use impl_crud::generate_crud;
@@ -24,7 +25,7 @@ mod helper;
 
 
 /// `#[derive(Crud)]`
-/// generate method: get, get_by, query, query_by, update, delete, insert, insert_all.
+/// generate method: get, get_by, query, query_by, update, delete, insert, insert_all, query_page_by
 /// 
 /// attributes:
 /// 
@@ -51,20 +52,15 @@ mod helper;
 #[proc_macro_derive(Crud, 
     attributes(
         co_orm, // co_orm(id), co_orm(seq), co_orm(rename="name"), co_orm(skip), co_orm(update), co_orm(by),
-        // orm_pk, // default first field is primary key or set
-        // orm_seq, // sequence field, auto increment. insert will skip this field
-        // orm_rename, // rename table name or field name
-        // orm_ignore, // ignore field
-        // orm_update, // generate method update_xxx. 
-        // orm_by, // query_by_field,update_by_field,delete_by_field
+        
     )
 )]
 pub fn sql_derive_crud(input: TokenStream) -> TokenStream{
     let input = parse_macro_input!(input as DeriveInput);
     
-    // if let Err(e) =  check_attributes_sql(&input.attrs){
-    //     return e.to_compile_error().into();
-    // }
+    if let Err(e) =  check_attributes(&input.attrs){
+       return e.to_compile_error().into();
+    }
 
     generate_crud(input)
     
