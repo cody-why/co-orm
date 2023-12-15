@@ -3,7 +3,7 @@
 /*
  * @Author: plucky
  * @Date: 2022-10-21 16:53:21
- * @LastEditTime: 2023-10-31 18:40:28
+ * @LastEditTime: 2023-12-15 15:18:32
  * @Description: 
  */
 
@@ -17,8 +17,8 @@
 //! ```
 //! features: mysql, postgres, sqlite, mssql
 //! 
-//! # Examples
-//! ```
+//! # Examples 
+//! ``` no_run,ignore
 //! use co_orm::{Crud, FromRow};
 //! 
 //! #[derive(Debug, Crud, FromRow)]
@@ -34,6 +34,8 @@
 //!     pub password: String,
 //!     #[co_orm(skip)] // ignore field
 //!     pub addr: Option<String>,
+//!     // #[co_orm(skip_insert)] // insert will skip this field.
+//!     // pub update_at: Option<NaiveDateTime>,
 //! }
 //! 
 //! // use crud
@@ -48,7 +50,7 @@ pub use co_orm_macros::FromRow;
 
 
 /// sqlx::query_as
-/// ``` no_run
+/// ``` no_run,ignore
 /// query_as!(User, "select * from users where name = ?", name).fetch_one(&pool).await
 /// ```
 #[macro_export]
@@ -63,7 +65,7 @@ macro_rules! query_as (
 );
 
 /// sqlx::query
-/// ``` no_run
+/// ``` no_run,ignore
 /// query!("insert into users (name, password) values (?,?)", name, password).execute(&pool).await
 /// ```
 #[macro_export]
@@ -79,7 +81,7 @@ macro_rules! query (
 
 /// # Examples
 ///
-/// ```no_run
+/// ```no_run,ignore
 /// 
 /// let args = sql_args!(&name, age);
 /// ```

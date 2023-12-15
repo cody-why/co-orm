@@ -1,7 +1,7 @@
 /*
  * @Author: plucky
  * @Date: 2022-10-21 17:23:16
- * @LastEditTime: 2023-11-27 18:17:58
+ * @LastEditTime: 2023-12-15 15:08:07
  * @Description: 
  */
 fn main() {
@@ -11,8 +11,9 @@ fn main() {
 #[cfg(test)]
 mod tests{
     #![allow(unused)]
+
     use co_orm::{Crud, FromRow, sql_args, query, query_as};
-    use sqlx::{Execute, MySql, Row};
+    use sqlx::{Execute, types::{chrono::NaiveDateTime, BigDecimal}};
 
     // #[derive(sqlx::FromRow)]
     #[derive(Debug, Crud, FromRow)]
@@ -29,13 +30,17 @@ mod tests{
         #[co_orm(skip)] // ignore field
         pub addr: Option<String>,
         
+        pub amount: Option<BigDecimal>,
+        #[co_orm(skip_insert)] // insert will ignore this field
+        pub update_at: Option<NaiveDateTime>,
+       
         // #[sqlx(skip)]
-        // pub age: i32,
+        // pub age: u32,
     }
 
     impl User {
         pub fn new(id: u64, name: impl Into<String>, password: impl Into<String>) -> Self { 
-            Self { id, name:name.into(), password: password.into(), addr: None } 
+            Self { id, name:name.into(), password: password.into(), addr: None,  amount: None , update_at: None}
         }
     }
 
@@ -55,13 +60,16 @@ mod tests{
 
         let u = User::get(&pool, 1).await;
         println!("get {:?}", u);
+        println!("");
         let u = User::get_by(&pool, "where id=?", sql_args!(1)).await;
         println!("get_by {:?}", u);
-        let u = User::query_by_name(&pool, "plucky".into()).await;
+        println!("");
+        let u = User::query_by_name(&pool, "jack".into()).await;
         println!("query_by_name {:?}", u);
+        println!("");
         let u =User::query(&pool).await;
         println!("list {:?}",u);
-
+        println!("");
         let u = User::query_by(&pool, "where id=? or id =?", sql_args!(1, 2)).await;
         println!("query_by {:?}", u);
     }
@@ -70,14 +78,15 @@ mod tests{
     async fn test_update(){
         let pool=get_pool().await.unwrap();
 
-        let _u = User::new(2, "jack", "123456");
+        let _u = User::new(2, "jack", "123456a");
         
         let r = _u.update(&pool).await;
-        dbg!(r);
+        println!("update {:?}",r);
+
         let r = _u.update_by(&pool,format!("where id={}",100)).await;
-        dbg!(r);
+        println!("update_by {:?}",r);
         let r =  _u.update_password(&pool).await;
-        dbg!(r);
+        println!("update_password {:?}",r);
         
     }
 
@@ -87,6 +96,7 @@ mod tests{
         let _u = User::new(0, "lusy", "123456");
         let r =_u.insert(&pool).await;
         println!("list: {:?}",r);
+        
     }
 
     #[tokio::test]
@@ -125,19 +135,17 @@ mod tests{
 
     #[tokio::test]
     async fn test_args() {
-        use sqlx::Arguments;
-        
         let args= sql_args!(1, "plucky");
         let sql = "select * from users where id = ? and name = ?";
-        let sql = sqlx::query_as_with::<_,User, _>(sql,args).sql();
+        let sql = sqlx::query_as_with::<_,User, _>(sql, args).sql();
         println!("sql {:?}", sql);
 
-        let mut qb: sqlx::QueryBuilder<'_, sqlx::MySql> = sqlx::QueryBuilder::new("select * from users ");
-        qb.push("where id=")
-            .push_bind(1)
-            .push(" or name=")
-            .push_bind("plucky");
-        println!("qb {:?}", qb.sql());
+        // let mut qb = sqlx::QueryBuilder::<'_, sqlx::MySql>::new("select * from users ");
+        // qb.push("where id=")
+        //     .push_bind(1)
+        //     .push(" or name=")
+        //     .push_bind("plucky");
+        // println!("qb {:?}", qb.sql());
 
     }
    

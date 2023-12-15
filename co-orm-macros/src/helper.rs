@@ -1,7 +1,7 @@
 /*
  * @Author: plucky
  * @Date: 2023-10-29 15:56:49
- * @LastEditTime: 2023-11-27 18:43:47
+ * @LastEditTime: 2023-12-15 11:31:32
  */
 
 use std::collections::HashSet;
@@ -27,7 +27,9 @@ pub(crate) fn is_id(field: &Field) -> bool {
 }
 
 pub(crate) fn is_seq(field: &Field) -> bool {
-    has_attribute_value(&field.attrs, "co_orm", "seq")
+    has_attribute_value(&field.attrs, "co_orm", "seq") |
+    has_attribute_value(&field.attrs, "co_orm", "skip_insert") 
+    
 }
 
 /// table_name

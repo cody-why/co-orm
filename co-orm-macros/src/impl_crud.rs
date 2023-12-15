@@ -1,7 +1,7 @@
 /*
  * @Author: plucky
  * @Date: 2022-10-22 18:08:45
- * @LastEditTime: 2023-11-27 18:44:19
+ * @LastEditTime: 2023-12-04 16:08:28
  * @Description:
  */
 
@@ -40,11 +40,11 @@ pub fn generate_crud(input: DeriveInput) -> TokenStream {
     let fields_insert = fields.iter().filter(|f| !is_seq(f)).collect::<Vec<_>>();
 
     let field_name_insert = fields_insert.iter().map(|field| &field.ident).collect::<Vec<_>>();
-
+    
     // insert (a,b,c) values (?,?,?)
     let insert_columns = fields_insert
         .iter()
-        .map(|field| get_field_name(field))
+        .map(|field| format!("`{}`",get_field_name(field)))
         .collect::<Vec<_>>()
         .join(",");
 
@@ -56,7 +56,7 @@ pub fn generate_crud(input: DeriveInput) -> TokenStream {
 
     let select_columns = fields
         .iter()
-        .map(|field| get_field_name(field))
+        .map(|field| format!("`{}`",get_field_name(field)))
         .collect::<Vec<_>>()
         .join(",");
 
@@ -83,7 +83,7 @@ pub fn generate_crud(input: DeriveInput) -> TokenStream {
     let update_fields_str = update_fields
         .clone()
         .enumerate()
-        .map(|(i, f)| format!("{} = {}", get_field_name(f), db_placeholder(i + 1)))
+        .map(|(i, f)| format!("`{}` = {}", get_field_name(f), db_placeholder(i + 1)))
         .collect::<Vec<_>>()
         .join(",");
     // println!("update_fields_str: {}", update_fields_str);
@@ -154,7 +154,7 @@ pub fn generate_crud(input: DeriveInput) -> TokenStream {
             /// insert
             pub async fn insert(&self, pool: &#pool) -> sqlx::Result<#query_result> {
                 let sql = format!("INSERT INTO {} ({}) values ({}) ", #table_name, #insert_columns, #values);
-                //RETURNING {}
+                // RETURNING {}
                 sqlx::query(&sql)
                 #(
                     .bind(&self.#field_name_insert)

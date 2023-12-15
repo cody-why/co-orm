@@ -49,6 +49,7 @@ struct User {
     pub addr: Option<String>,
     // #[sqlx(skip)]
     // pub age: i32,
+    // #[co_orm(skip_insert)] // insert will ignore this field
 }
 
 
@@ -96,6 +97,10 @@ default first field is primary key or set.
 `#[co_orm(seq)]`
 
 sequence field, auto increment. insert will skip this field.
+
+`#[co_orm(skip_insert)]`
+
+insert will skip this field.
 
 `#[co_orm(rename="name")]`
 

@@ -1,10 +1,9 @@
 /*
  * @Author: plucky
  * @Date: 2022-09-04 00:01:24
- * @LastEditTime: 2023-11-27 18:47:25
+ * @LastEditTime: 2023-12-15 11:33:37
  * @Description: 
  */
-
 
 extern crate proc_macro;
 
@@ -49,6 +48,8 @@ mod helper;
 /// `#[co_orm(by)]`
 /// generate qet_by_field, query_by_field, update_by_field, delete_by_field.
 /// 
+/// `#[co_orm(skip_insert)]`
+/// insert will skip this field.
 #[proc_macro_derive(Crud, 
     attributes(
         co_orm, // co_orm(id), co_orm(seq), co_orm(rename="name"), co_orm(skip), co_orm(update), co_orm(by),
