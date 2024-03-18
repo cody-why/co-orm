@@ -1,7 +1,7 @@
 /*
  * @Author: plucky
  * @Date: 2022-10-22 18:08:45
- * @LastEditTime: 2024-03-18 10:18:48
+ * @LastEditTime: 2024-03-18 21:15:51
  * @Description:
  */
 
@@ -120,7 +120,7 @@ pub fn generate_crud(input: DeriveInput) -> TokenStream {
             /// get by where sql
             /// Example:
             /// ```` no_run
-            /// User::get_by(&pool, "where id=?", sql_args!(1)).await
+            /// User::get_by(&pool, "where id=?", args!(1)).await
             /// ````
             pub async fn get_by(pool: &#pool, where_sql: impl AsRef<str>, args: #db_arguments) -> sqlx::Result<Self> {
                 let sql = format!("SELECT {} FROM {} {}",#select_columns, #table_name, where_sql.as_ref());
@@ -141,7 +141,7 @@ pub fn generate_crud(input: DeriveInput) -> TokenStream {
             ///
             /// Example:
             /// ```` no_run
-            /// User::query_by(&pool, "where id=?", sql_args!(1)).await
+            /// User::query_by(&pool, "where id=?", args!(1)).await
             /// ````
             pub async fn query_by(pool: &#pool, where_sql: impl AsRef<str>, args: #db_arguments) -> sqlx::Result<Vec<Self>> {
                 let sql = format!("SELECT {} FROM {} {}",#select_columns, #table_name, where_sql.as_ref());
@@ -184,7 +184,7 @@ pub fn generate_crud(input: DeriveInput) -> TokenStream {
             ///
             /// Example:
             /// ```` no_run
-            /// User::delete_by(&pool, "where id=?", sql_args!(1)).await
+            /// User::delete_by(&pool, "where id=?", args!(1)).await
             /// ````
             pub async fn delete_by(pool: &#pool, where_sql: impl AsRef<str>, args: #db_arguments) -> sqlx::Result<#query_result> {
                 let sql = format!("DELETE FROM {} {}", #table_name, where_sql.as_ref());
@@ -242,7 +242,7 @@ pub fn generate_crud(input: DeriveInput) -> TokenStream {
            ///
            /// Example:
            /// ```` no_run
-           /// let r = User::query_page_by(&pool, "where id>?", sql_args!(1), 1, 10).await
+           /// let r = User::query_page_by(&pool, "where id>?", args!(1), 1, 10).await
            /// if let Ok((count, list)) = r {
            ///     println!("count: {}, list: {:?}", count, list);
            /// }
