@@ -3,7 +3,7 @@
 /*
  * @Author: plucky
  * @Date: 2022-10-21 16:53:21
- * @LastEditTime: 2023-12-15 15:18:32
+ * @LastEditTime: 2024-03-18 17:05:46
  * @Description: 
  */
 
@@ -46,7 +46,7 @@
 //! ```
 
 pub use co_orm_macros::Crud;
-pub use co_orm_macros::FromRow;
+// pub use co_orm_macros::FromRow;
 
 
 /// sqlx::query_as

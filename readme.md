@@ -33,8 +33,7 @@ sqlx = { version = "0.7", features = ["mysql","runtime-tokio-native-tls"] }
 
 ## Examples
 ```rust
-// #[derive(sqlx::FromRow)]
-#[derive(Debug, Crud, FromRow)]
+#[derive(Debug, Crud, sqlx::FromRow)]
 #[co_orm(rename = "users")] // rename table name
 struct User {
     // co_orm(id) // default first field is primary key
@@ -46,8 +45,9 @@ struct User {
     #[co_orm(update)] // generate method update_xxx. 
     pub password: String,
     #[co_orm(skip)] // ignore field
+    #[sqlx(skip)]
     pub addr: Option<String>,
-    // #[sqlx(skip)]
+    // 
     // pub age: i32,
     // #[co_orm(skip_insert)] // insert will ignore this field
 }

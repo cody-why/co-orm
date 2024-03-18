@@ -1,7 +1,7 @@
 /*
  * @Author: plucky
  * @Date: 2022-10-21 17:23:16
- * @LastEditTime: 2024-03-18 10:25:39
+ * @LastEditTime: 2024-03-18 17:16:44
  * @Description: 
  */
 fn main() {
@@ -12,22 +12,23 @@ fn main() {
 mod tests{
     #![allow(unused)]
 
-    use co_orm::{Crud, FromRow, sql_args, query, query_as};
+    use co_orm::{Crud, sql_args, query, query_as};
     use sqlx::{Execute, types::{chrono::NaiveDateTime, BigDecimal}};
 
-    // #[derive(sqlx::FromRow)]
-    #[derive(Debug, Crud, FromRow)]
+    #[derive(Debug, Crud, sqlx::FromRow)]
     #[co_orm(rename = "users")] // rename table name
     struct User {
         // #[co_orm(id)] // default first field is primary key
         #[co_orm(seq)] // sequence field, insert will ignore this field
         pub id: u64,
         #[co_orm(rename = "name")] // rename field name
+        #[sqlx(rename = "name")]
         #[co_orm(by)] // generate query_by_field,update_by_field,delete_by_field
         pub name: String,
         #[co_orm(update)] // generate method update_xxx. 
         pub password: String,
         #[co_orm(skip)] // ignore field
+        #[sqlx(skip)]
         pub addr: Option<String>,
         
         pub amount: Option<BigDecimal>,

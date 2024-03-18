@@ -1,7 +1,7 @@
 /*
  * @Author: plucky
  * @Date: 2022-10-19 17:45:59
- * @LastEditTime: 2024-03-18 09:57:02
+ * @LastEditTime: 2024-03-18 17:15:49
  * @Description: 
  */
 
@@ -122,6 +122,7 @@
      }
  }
  
+ #[allow(dead_code)]
  /// impl sqlx::FromRow
  pub fn generate_impl_from_row(fields: &[&Field], struct_name:&syn::Ident) -> TokenStream {
      let fields = fields.iter().map(|field| -> TokenStream {
