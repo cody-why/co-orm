@@ -1,7 +1,7 @@
 /*
  * @Author: plucky
  * @Date: 2022-10-21 16:53:21
- * @LastEditTime: 2024-03-18 21:01:42
+ * @LastEditTime: 2024-03-18 21:49:12
  */
 
 //! Derive macro for sqlx to implement Create, Read, Update, and Delete (CRUD) methods.
@@ -16,9 +16,9 @@
 //! 
 //! # Examples 
 //! ``` no_run,ignore
-//! use co_orm::{Crud, FromRow};
+//! use co_orm::{Crud, args};
 //! 
-//! #[derive(Debug, Crud, FromRow)]
+//! #[derive(Debug, Crud, sqlx::FromRow)]
 //! #[co_orm(rename = "users")] // rename table name
 //! pub struct User {
 //!     // #[co_orm(id)] // default first field is primary key
@@ -30,6 +30,7 @@
 //!     #[co_orm(update)] // generate method update_xxx. 
 //!     pub password: String,
 //!     #[co_orm(skip)] // ignore field
+//!     #[sqlx(skip)]
 //!     pub addr: Option<String>,
 //!     // #[co_orm(skip_insert)] // insert will skip this field.
 //!     // pub update_at: Option<NaiveDateTime>,
