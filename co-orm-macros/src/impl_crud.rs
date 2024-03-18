@@ -1,7 +1,7 @@
 /*
  * @Author: plucky
  * @Date: 2022-10-22 18:08:45
- * @LastEditTime: 2023-12-04 16:08:28
+ * @LastEditTime: 2024-03-18 10:18:48
  * @Description:
  */
 
@@ -111,7 +111,7 @@ pub fn generate_crud(input: DeriveInput) -> TokenStream {
             /// User::get(&pool, 1).await
             /// ````
             pub async fn get(pool: &#pool, id: #id_ty) -> sqlx::Result<Self> {
-                let sql = format!("SELECT * FROM {} WHERE {} = {}", #table_name, #id_name, #placeholder);
+                let sql = format!("SELECT {} FROM {} WHERE {} = {}",#select_columns, #table_name, #id_name, #placeholder);
                 sqlx::query_as::<_, Self>(&sql)
                    .bind(id)
                    .fetch_one(pool).await
@@ -123,7 +123,7 @@ pub fn generate_crud(input: DeriveInput) -> TokenStream {
             /// User::get_by(&pool, "where id=?", sql_args!(1)).await
             /// ````
             pub async fn get_by(pool: &#pool, where_sql: impl AsRef<str>, args: #db_arguments) -> sqlx::Result<Self> {
-                let sql = format!("SELECT * FROM {} {}", #table_name, where_sql.as_ref());
+                let sql = format!("SELECT {} FROM {} {}",#select_columns, #table_name, where_sql.as_ref());
                 // sqlx::query_as::<_, Self>(&sql)
                 sqlx::query_as_with::<_,Self,_>(&sql, args)
                    .fetch_one(pool).await
@@ -131,7 +131,7 @@ pub fn generate_crud(input: DeriveInput) -> TokenStream {
 
             /// query
             pub async fn query(pool: &#pool) -> sqlx::Result<Vec<Self>> {
-                let sql = format!("SELECT * FROM {}", #table_name);
+                let sql = format!("SELECT {} FROM {}", #select_columns, #table_name);
 
                 sqlx::query_as::<_, Self>(&sql)
                    .fetch_all(pool).await
@@ -144,7 +144,7 @@ pub fn generate_crud(input: DeriveInput) -> TokenStream {
             /// User::query_by(&pool, "where id=?", sql_args!(1)).await
             /// ````
             pub async fn query_by(pool: &#pool, where_sql: impl AsRef<str>, args: #db_arguments) -> sqlx::Result<Vec<Self>> {
-                let sql = format!("SELECT * FROM {} {}", #table_name, where_sql.as_ref());
+                let sql = format!("SELECT {} FROM {} {}",#select_columns, #table_name, where_sql.as_ref());
 
                 // sqlx::query_as::<_, Self>(&sql)
                 sqlx::query_as_with::<_,Self,_>(&sql, args)
@@ -248,7 +248,7 @@ pub fn generate_crud(input: DeriveInput) -> TokenStream {
            /// }
            /// ````
            pub async fn query_page_by(pool: &#pool, where_sql: impl AsRef<str>, args: #db_arguments, page: i32, page_size: i32) -> sqlx::Result<(i64, Vec<Self>)> {
-                let sql = format!("SELECT * FROM {} {}", #table_name, where_sql.as_ref());
+                let sql = format!("SELECT {} FROM {} {}", #select_columns, #table_name, where_sql.as_ref());
 
                 let total = sqlx::query_scalar_with::<_,i64,_>(&format!("select count(*) from ({}) as c", sql),args.clone())
                    .fetch_one(pool).await?;

@@ -1,7 +1,7 @@
 /*
  * @Author: plucky
  * @Date: 2022-10-19 17:45:59
- * @LastEditTime: 2023-11-27 16:19:00
+ * @LastEditTime: 2024-03-18 09:57:02
  * @Description: 
  */
 
@@ -57,7 +57,7 @@
  
  
  /// query_by_field,update_by_field,delete_by_field
- pub fn generate_crud_by_field(fields: &[&Field], table_name:&str, update_fields_str:&str, _select_columns:&str, len:usize) -> TokenStream {
+ pub fn generate_crud_by_field(fields: &[&Field], table_name:&str, update_fields_str:&str, select_columns:&str, len:usize) -> TokenStream {
      let generate_tokens = fields.iter()
          .filter_map(|field| {
              if has_attribute_by(field) {
@@ -77,7 +77,7 @@
                  
                  let code = quote!{
                      pub async fn #fn_get(pool: &#pool, value:#field_type) ->sqlx::Result<Self>{
-                         let sql = format!("SELECT * FROM {} WHERE {} = {}", #table_name, #field_name, #placeholder);
+                         let sql = format!("SELECT {} FROM {} WHERE {} = {}", #select_columns, #table_name, #field_name, #placeholder);
                          sqlx::query_as::<_, Self>(&sql)
                          .bind(value)
                          .fetch_one(pool).await
@@ -85,7 +85,7 @@
                      }
                      // #[doc = #doc]
                      pub async fn #fn_query(pool: &#pool, value:#field_type) ->sqlx::Result<Vec<Self>>{
-                         let sql = format!("SELECT * FROM {} WHERE {} = {}", #table_name, #field_name, #placeholder);
+                         let sql = format!("SELECT {} FROM {} WHERE {} = {}", #select_columns, #table_name, #field_name, #placeholder);
                          sqlx::query_as::<_, Self>(&sql)
                          .bind(value)
                          .fetch_all(pool).await

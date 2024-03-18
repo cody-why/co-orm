@@ -1,7 +1,7 @@
 /*
  * @Author: plucky
  * @Date: 2022-10-21 17:23:16
- * @LastEditTime: 2023-12-15 15:08:07
+ * @LastEditTime: 2024-03-18 10:25:39
  * @Description: 
  */
 fn main() {
@@ -58,22 +58,36 @@ mod tests{
     async fn test_query() {
         let pool=get_pool().await.unwrap();
 
-        let u = User::get(&pool, 1).await;
+        let u = User::get(&pool, 2).await;
         println!("get {:?}", u);
         println!("");
-        let u = User::get_by(&pool, "where id=?", sql_args!(1)).await;
+        let u = User::get_by(&pool, "where id>?", sql_args!(1)).await;
         println!("get_by {:?}", u);
         println!("");
         let u = User::query_by_name(&pool, "jack".into()).await;
         println!("query_by_name {:?}", u);
         println!("");
         let u =User::query(&pool).await;
-        println!("list {:?}",u);
+        println!("query {:?}",u);
         println!("");
         let u = User::query_by(&pool, "where id=? or id =?", sql_args!(1, 2)).await;
         println!("query_by {:?}", u);
     }
 
+
+    #[tokio::test]
+    async fn test_page() {
+        let pool=get_pool().await.unwrap();
+        let r =User::query_page_by(&pool, "where id>?", sql_args!(1), 1, 3).await;
+
+        // println!("count: {:?}",r);
+        if let Ok((count, list)) = r {
+            println!("count: {}, list: {:?}", count, list);
+        }
+        
+    }
+
+    
     #[tokio::test]
     async fn test_update(){
         let pool=get_pool().await.unwrap();
@@ -119,18 +133,6 @@ mod tests{
         let r =User::insert_all(&pool, list).await;
         println!("list: {:?}",r);
 
-    }
-
-    #[tokio::test]
-    async fn test_page() {
-        let pool=get_pool().await.unwrap();
-        let r =User::query_page_by(&pool, "where id>?", sql_args!(1), 1, 10).await;
-
-        // println!("count: {:?}",r);
-        if let Ok((count, list)) = r {
-            println!("count: {}, list: {:?}", count, list);
-        }
-        
     }
 
     #[tokio::test]
