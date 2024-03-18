@@ -110,7 +110,7 @@ default field name by field name to_snake_case: UserDetail => user_detail.
 
 `#[co_orm(skip)]`
 
-ignore field.
+ignore field. using sqlx::FromRow, skip need `#[co_orm(skip)]` and `#[sqlx(skip)]`
 
 `#[co_orm(update)]`
 
@@ -120,15 +120,10 @@ generate method update_xxx.
 
 generate qet_by_field, query_by_field, update_by_field, delete_by_field.
 
+`#[co_orm(skip_insert)]`
+insert will skip this field.
 
 
-## `#[derive(FromRow)]`
-
-impl sqlx::FromRow trait.
-
-or use `#[derive(sqlx::FromRow)]` macro or impl `sqlx::FromRow` trait.
-
-if using sqlx::FromRow, if have `#[co_orm(skip)]` add `#[sqlx(skip)]` .
 
 
 ## macro_export

@@ -1,7 +1,7 @@
 /*
  * @Author: plucky
  * @Date: 2022-09-04 00:01:24
- * @LastEditTime: 2024-03-18 19:48:30
+ * @LastEditTime: 2024-03-18 21:59:43
  * @Description: 
  */
 
@@ -38,7 +38,7 @@ mod helper;
 /// default field name by field name to_snake_case: UserDetail => user_detail. 
 /// 
 /// `#[co_orm(skip)]`
-/// ignore field.
+/// ignore field. using sqlx::FromRow, skip need `#[co_orm(skip)]` and `#[sqlx(skip)]`
 /// 
 /// `#[co_orm(update)]`
 /// generate method update_xxx. 
@@ -68,8 +68,6 @@ pub fn sql_derive_crud(input: TokenStream) -> TokenStream{
 // / use `#[derive(sqlx::FromRow)]`
 // / 
 // / or use `#[derive(sqlx::FromRow)]` macro or impl `sqlx::FromRow` trait.
-// / 
-// / if have `#[co_orm(skip)]` add `#[sqlx(skip)]` .
 // / 
 // #[proc_macro_derive(FromRow)]
 // pub fn sql_derive_form_row(input: TokenStream) -> TokenStream{
