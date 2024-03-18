@@ -1,7 +1,7 @@
 /*
  * @Author: plucky
  * @Date: 2022-09-04 00:01:24
- * @LastEditTime: 2024-03-18 17:14:33
+ * @LastEditTime: 2024-03-18 19:48:30
  * @Description: 
  */
 
@@ -89,3 +89,4 @@ pub fn sql_derive_crud(input: TokenStream) -> TokenStream{
 //     })
 
 // }
+

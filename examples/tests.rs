@@ -1,7 +1,7 @@
 /*
  * @Author: plucky
  * @Date: 2022-10-21 17:23:16
- * @LastEditTime: 2024-03-18 17:16:44
+ * @LastEditTime: 2024-03-18 21:01:56
  * @Description: 
  */
 fn main() {
@@ -12,7 +12,7 @@ fn main() {
 mod tests{
     #![allow(unused)]
 
-    use co_orm::{Crud, sql_args, query, query_as};
+    use co_orm::{Crud, args, query, query_as};
     use sqlx::{Execute, types::{chrono::NaiveDateTime, BigDecimal}};
 
     #[derive(Debug, Crud, sqlx::FromRow)]
@@ -62,7 +62,7 @@ mod tests{
         let u = User::get(&pool, 2).await;
         println!("get {:?}", u);
         println!("");
-        let u = User::get_by(&pool, "where id>?", sql_args!(1)).await;
+        let u = User::get_by(&pool, "where name=?", args!("jack")).await;
         println!("get_by {:?}", u);
         println!("");
         let u = User::query_by_name(&pool, "jack".into()).await;
@@ -71,7 +71,7 @@ mod tests{
         let u =User::query(&pool).await;
         println!("query {:?}",u);
         println!("");
-        let u = User::query_by(&pool, "where id=? or id =?", sql_args!(1, 2)).await;
+        let u = User::query_by(&pool, "where id=? or id =?", args!(1, 2)).await;
         println!("query_by {:?}", u);
     }
 
@@ -79,7 +79,7 @@ mod tests{
     #[tokio::test]
     async fn test_page() {
         let pool=get_pool().await.unwrap();
-        let r =User::query_page_by(&pool, "where id>?", sql_args!(1), 1, 3).await;
+        let r =User::query_page_by(&pool, "where id>?", args!(1), 1, 3).await;
 
         // println!("count: {:?}",r);
         if let Ok((count, list)) = r {
@@ -121,7 +121,7 @@ mod tests{
         let _u = User::new(10, "lusy", "123456");
         let r = _u.delete(&pool).await;
         println!("delete: {:?}",r);
-        let r =User::delete_by(&pool, "where name=?", sql_args!("leo")).await;
+        let r =User::delete_by(&pool, "where name=?", args!("leo")).await;
         println!("delete: {:?}",r);
         let r =User::delete_by_name(&pool, "lusy".into()).await;
         println!("delete: {:?}",r);
@@ -138,7 +138,7 @@ mod tests{
 
     #[tokio::test]
     async fn test_args() {
-        let args= sql_args!(1, "plucky");
+        let args= args!(1, "plucky");
         let sql = "select * from users where id = ? and name = ?";
         let sql = sqlx::query_as_with::<_,User, _>(sql, args).sql();
         println!("sql {:?}", sql);

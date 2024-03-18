@@ -63,7 +63,7 @@ async fn test_query() {
     let pool=get_pool().await.unwrap();
     let u = User::get(&pool, 1).await;
     println!("get {:?}", u);
-    let u = User::get_by(&pool, "where id=?", sql_args!(1)).await;
+    let u = User::get_by(&pool, "where id=?", args!(1)).await;
     println!("get_by {:?}", u);
     let u = User::query_by_name(&pool, "plucky".into()).await;
     println!("query_by_name {:?}", u);
@@ -134,9 +134,9 @@ if using sqlx::FromRow, if have `#[co_orm(skip)]` add `#[sqlx(skip)]` .
 ## macro_export
 
 
-`sql_args`
+`args`
 ``` rust
- let args = sql_args!(&name, age);
+ let args = args!(&name, age);
 ```
 
 `query`

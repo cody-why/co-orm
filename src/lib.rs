@@ -1,10 +1,7 @@
-
-
 /*
  * @Author: plucky
  * @Date: 2022-10-21 16:53:21
- * @LastEditTime: 2024-03-18 17:05:46
- * @Description: 
+ * @LastEditTime: 2024-03-18 21:01:42
  */
 
 //! Derive macro for sqlx to implement Create, Read, Update, and Delete (CRUD) methods.
@@ -41,7 +38,7 @@
 //! // use crud
 //! let u = User::get(&pool, 1).await;
 //! println!("get {:?}", u);
-//! let u = User::get_by(&pool, "where id=?", sql_args!(1)).await;
+//! let u = User::get_by(&pool, "where id=?", args!(1)).await;
 //! println!("get_by {:?}", u);
 //! ```
 
@@ -79,42 +76,59 @@ macro_rules! query (
     })
 );
 
-/// # Examples
-///
-/// ```no_run,ignore
-/// 
-/// let args = sql_args!(&name, age);
-/// ```
-#[macro_export]
-macro_rules! sql_args {
 
+
+
+#[cfg(feature = "mysql")]
+#[macro_export]
+macro_rules! args {
     // ($sql:expr) => {
-    //     sql_args!($sql,);
+    //     args!($sql,);
     // };
-    
+   
     ($($args:expr),*) => {{
         use sqlx::Arguments;
-        #[cfg(feature = "mysql")]{
-            let mut sqlargs = sqlx::mysql::MySqlArguments::default();
-            $(sqlargs.add($args);)*
-            sqlargs
-        }
-        #[cfg(feature = "postgres")]{
-            let mut sqlargs = sqlx::postgres::PgArguments::default();
-            $(sqlargs.add($args);)*
-            sqlargs
-        }
-        #[cfg(feature = "mssql")]{
-            let mut sqlargs = sqlx::mysql::MySqlArguments::default();
-            $(sqlargs.add($args);)*
-            sqlargs
-        }
-        #[cfg(feature = "sqlite")]{
-            let mut sqlargs = sqlx::sqlite::SqliteArguments::default();
-            $(sqlargs.add($args);)*
-            sqlargs
-        }
-        // let mut sqlargs = sqlx::any::AnyArguments::default();
-       
+        let mut sqlargs = sqlx::mysql::MySqlArguments::default();
+        $(sqlargs.add($args);)*
+        sqlargs
+        
+        
     }};
 }
+
+#[cfg(feature = "postgres")]
+#[macro_export]
+macro_rules! args {
+    ($($args:expr),*) => {{
+        use sqlx::Arguments;
+        let mut sqlargs = sqlx::postgres::PgArguments::default();
+        $(sqlargs.add($args);)*
+        sqlargs
+    }};
+
+}
+
+#[cfg(feature = "sqlite")]
+#[macro_export]
+macro_rules! args {
+    ($($args:expr),*) => {{
+        use sqlx::Arguments;
+        let mut sqlargs = sqlx::sqlite::SqliteArguments::default();
+        $(sqlargs.add($args);)*
+        sqlargs
+    }};
+}
+
+#[cfg(feature = "mssql")]
+#[macro_export]
+macro_rules! args {
+    ($($args:expr),*) => {{
+        use sqlx::Arguments;
+        let mut sqlargs = sqlx::mssql::MssqlArguments::default();
+        $(sqlargs.add($args);)*
+        sqlargs
+    }};
+
+}
+
+
