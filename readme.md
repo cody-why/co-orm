@@ -128,7 +128,7 @@ insert will skip this field.
 
 generate impl sqlx::FromRow for struct.
 or use `#[derive(sqlx::FromRow)]`.
-
+if using sqlx::FromRow, if need skip field, both `#[anorm(skip)]` add `#[sqlx(skip)]` .
 
 ## macro_export
 
