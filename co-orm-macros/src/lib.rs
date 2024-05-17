@@ -1,13 +1,14 @@
 /*
  * @Author: plucky
  * @Date: 2022-09-04 00:01:24
- * @LastEditTime: 2024-03-18 21:59:43
+ * @LastEditTime: 2024-05-17 16:17:05
  * @Description: 
  */
 
 extern crate proc_macro;
 
 use helper::check_attributes;
+use impl_by_field::generate_impl_from_row;
 use proc_macro::TokenStream;
 use impl_crud::generate_crud;
 use syn::{parse_macro_input, DeriveInput};
@@ -64,27 +65,17 @@ pub fn sql_derive_crud(input: TokenStream) -> TokenStream{
     generate_crud(input)
     
 }
-// / `#[derive(FromRow)]`
-// / use `#[derive(sqlx::FromRow)]`
-// / 
-// / or use `#[derive(sqlx::FromRow)]` macro or impl `sqlx::FromRow` trait.
-// / 
-// #[proc_macro_derive(FromRow)]
-// pub fn sql_derive_form_row(input: TokenStream) -> TokenStream{
-//     let input = parse_macro_input!(input as DeriveInput);
-//     let struct_name = &input.ident;
 
-//     let fields = match &input.data {
-//         Data::Struct(DataStruct {fields: Fields::Named(fields),..
-//         }) => &fields.named,
-//         _ => panic!("expected a struct with named fields"),
-//     };
+/// `#[derive(FromRow)]`
+/// generate impl sqlx::FromRow for struct.
+/// 
+/// or use `#[derive(sqlx::FromRow)]`.
+/// 
+#[proc_macro_derive(FromRow)]
+pub fn sql_derive_form_row(input: TokenStream) -> TokenStream{
+    let input = parse_macro_input!(input as DeriveInput);
 
-//     let fields_all = fields.iter().collect::<Vec<_>>();
-//     let generate_from_row = generate_impl_from_row(&fields_all, struct_name);
-//     TokenStream::from(quote! {
-//         #generate_from_row
-//     })
+    generate_impl_from_row(&input).into()
 
-// }
+}
 

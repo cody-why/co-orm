@@ -1,12 +1,12 @@
 /*
  * @Author: plucky
  * @Date: 2022-10-19 17:45:59
- * @LastEditTime: 2024-03-18 17:15:49
+ * @LastEditTime: 2024-05-17 16:15:04
  * @Description: 
  */
 
  use quote::{format_ident, quote, __private::TokenStream};
- use syn::Field;
+ use syn::{DataStruct, Field, Fields};
  use crate::{helper::*, db_type::*, util::get_option_type};
  
  
@@ -124,7 +124,16 @@
  
  #[allow(dead_code)]
  /// impl sqlx::FromRow
- pub fn generate_impl_from_row(fields: &[&Field], struct_name:&syn::Ident) -> TokenStream {
+ pub fn generate_impl_from_row(input: &syn::DeriveInput) -> TokenStream {
+    //fields: &[&Field], 
+    let struct_name = &input.ident;
+    let fields = match &input.data {
+        syn::Data::Struct(DataStruct {fields: Fields::Named(fields),..
+        }) => &fields.named,
+        _ => panic!("expected a struct with named fields"),
+    };
+
+    // let fields_all = fields.iter().collect::<Vec<_>>();
      let fields = fields.iter().map(|field| -> TokenStream {
          let field_ident = field.ident.as_ref().unwrap();
          // ignore or rename or option

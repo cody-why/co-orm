@@ -124,6 +124,10 @@ generate qet_by_field, query_by_field, update_by_field, delete_by_field.
 insert will skip this field.
 
 
+## `#[derive(FromRow)]`
+
+generate impl sqlx::FromRow for struct.
+or use `#[derive(sqlx::FromRow)]`.
 
 
 ## macro_export

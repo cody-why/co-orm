@@ -1,7 +1,7 @@
 /*
  * @Author: plucky
  * @Date: 2022-10-21 16:53:21
- * @LastEditTime: 2024-03-18 21:49:12
+ * @LastEditTime: 2024-05-17 16:24:23
  */
 
 //! Derive macro for sqlx to implement Create, Read, Update, and Delete (CRUD) methods.
@@ -44,7 +44,7 @@
 //! ```
 
 pub use co_orm_macros::Crud;
-// pub use co_orm_macros::FromRow;
+pub use co_orm_macros::FromRow;
 
 
 /// sqlx::query_as

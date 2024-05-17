@@ -1,10 +1,12 @@
 -- postgresql
+
 CREATE TABLE users (
-    `id` BIGSERIAL PRIMARY KEY,
-    `name` varchar(64),
-    `password` varchar(32)
-    `update_at` datetime,
-    `amount` decimal(10,2),
+    id BIGSERIAL PRIMARY key not null,
+    name varchar(64),
+    age int,
+    password varchar(32),
+    update_at timestamp null default now(),
+    amount numeric(10,2)
 );
 
 
