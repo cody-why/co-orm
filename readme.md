@@ -1,23 +1,9 @@
 # Implement Create, Read, Update, and Delete (CRUD) methods for sqlx.
 
-<div align="center">
-  <!-- Version -->
-  <a href="https://crates.io/crates/co-orm">
-    <img src="https://img.shields.io/crates/v/co-orm.svg?style=flat-square"
-    alt="Crates.io version" />
-  </a>
-  
-  <!-- Docs -->
-  <a href="https://docs.rs/crate/co-orm">
-    <img src="https://img.shields.io/badge/docs-latest-blue.svg?style=flat-square"
-      alt="docs.rs docs" />
-  </a>
-  <!-- Downloads -->
-  <a href="https://crates.io/crates/co-orm">
-    <img src="https://img.shields.io/crates/d/co-orm.svg?style=flat-square"
-      alt="Download" />
-  </a>
-</div>
+[![Crates.io](https://img.shields.io/crates/v/co-orm.svg)](https://crates.io/crates/co-orm)
+[![Docs](https://docs.rs/co-orm/badge.svg)](https://docs.rs/co-orm)
+[![Download](https://img.shields.io/crates/d/co-orm.svg?style=flat-square)](https://crates.io/crates/co-orm)
+
 
 ## Use
  add the following to your project's Cargo.toml:
@@ -128,7 +114,7 @@ insert will skip this field.
 
 generate impl sqlx::FromRow for struct.
 or use `#[derive(sqlx::FromRow)]`.
-if using sqlx::FromRow, if need skip field, both `#[anorm(skip)]` add `#[sqlx(skip)]` .
+if using sqlx::FromRow, if need skip field, both `#[co-orm(skip)]` add `#[sqlx(skip)]` .
 
 ## macro_export
 
