@@ -1,6 +1,6 @@
 /*
  * @Date: 2024-08-03 05:14:25
- * @LastEditTime: 2024-08-03 12:13:49
+ * @LastEditTime: 2024-08-03 23:36:05
  */
 fn main() {}
 #[cfg(test)]
@@ -46,6 +46,9 @@ mod test_orm {
         pub async fn query_page_by(
             pool: &sqlx::PgPool, where_sql: impl AsRef<str>, args: sqlx::postgres::PgArguments, page: i32, page_size: i32,
         ) -> sqlx::Result<(i64, Vec<Self>)> {
+            use std::any::type_name_of_val;
+
+            use sqlx::Execute;
             let sql = format!("SELECT {} FROM {} {}", "`id`,`name`,`password`", "users", where_sql.as_ref());
 
             // let total = sqlx::query_scalar_with::<_, i64, _>(&format!("select count(*) from ({}) as c", sql), args.0)
@@ -53,7 +56,34 @@ mod test_orm {
             //     .await?;
             let count_sql = format!("select count(*) from ({}) as c", sql);
             let mut a = sqlx::query_scalar_with::<_, i64, _>(&count_sql, args);
-            let arg1 = a.take_arguments().unwrap_or_default().unwrap_or_default();
+            let arg1;
+            let arg2 = a.take_arguments().unwrap_or_default();
+            if type_name_of_val(&arg2).contains("option") {
+                arg1 = arg2.unwrap_or_default();
+            } else {
+            }
+            let total = a.fetch_one(pool).await?;
+
+            let sql = format!("{} LIMIT {} OFFSET {}", sql, page_size, page_size * (page - 1));
+            sqlx::query_as_with::<_, Self, _>(&sql, arg1)
+                .fetch_all(pool)
+                .await
+                .map(|list| (total, list))
+        }
+
+        #[cfg(feature = "mysql")]
+        pub async fn query_page_by(
+            pool: &sqlx::MySqlPool, where_sql: impl AsRef<str>, args: sqlx::mysql::MySqlArguments, page: i32, page_size: i32,
+        ) -> sqlx::Result<(i64, Vec<Self>)> {
+            use sqlx::Execute;
+            let sql = format!("SELECT {} FROM {} {}", "`id`,`name`,`password`", "users", where_sql.as_ref());
+
+            // let total = sqlx::query_scalar_with::<_, i64, _>(&format!("select count(*) from ({}) as c", sql), args.0)
+            //     .fetch_one(pool)
+            //     .await?;
+            let count_sql = format!("select count(*) from ({}) as c", sql);
+            let mut a = sqlx::query_scalar_with::<_, i64, _>(&count_sql, args);
+            let arg1 = a.take_arguments().unwrap_or_default();
             let total = a.fetch_one(pool).await?;
 
             let sql = format!("{} LIMIT {} OFFSET {}", sql, page_size, page_size * (page - 1));

@@ -1,7 +1,7 @@
 /*
  * @Author: plucky
  * @Date: 2022-10-21 16:53:21
- * @LastEditTime: 2024-08-03 12:14:00
+ * @LastEditTime: 2024-08-03 23:52:00
  */
 
 //! Derive macro for sqlx to implement Create, Read, Update, and Delete (CRUD) methods.
@@ -43,87 +43,7 @@
 //! println!("get_by {:?}", u);
 //! ```
 
+mod macros;
+
 pub use co_orm_macros::Crud;
 pub use co_orm_macros::FromRow;
-
-/// sqlx::query_as
-/// ``` no_run,ignore
-/// query_as!(User, "select * from users where name = ?", name).fetch_one(&pool).await
-/// ```
-#[macro_export]
-macro_rules! query_as (
-    ($out_struct:path, $query:expr) => ( {
-        sqlx::query_as::<_, $out_struct>($query)
-    });
-    ($out_struct:path, $query:expr, $($args:expr),*) => ( {
-        sqlx::query_as::<_, $out_struct>($query)
-        $(.bind($args))*
-    })
-);
-
-/// sqlx::query
-/// ``` no_run,ignore
-/// query!("insert into users (name, password) values (?,?)", name, password).execute(&pool).await
-/// ```
-#[macro_export]
-macro_rules! query (
-    ($query:expr) => ( {
-        sqlx::query($query)
-    });
-    ($query:expr, $($args:expr),*) => ( {
-        sqlx::query($query)
-        $(.bind($args))*
-    })
-);
-
-#[cfg(feature = "mysql")]
-#[macro_export]
-macro_rules! args {
-    // ($sql:expr) => {
-    //     args!($sql,);
-    // };
-
-    ($($args:expr),*) => {{
-        use sqlx::Arguments;
-        let mut sqlargs = sqlx::mysql::MySqlArguments::default();
-        $(sqlargs.add($args);)*
-        sqlargs
-
-
-    }};
-}
-
-#[cfg(feature = "postgres")]
-#[macro_export]
-macro_rules! args {
-    ($($args:expr),*) => {{
-        use sqlx::Arguments;
-        let mut sqlargs = sqlx::postgres::PgArguments::default();
-        $(sqlargs.add($args);)*
-        sqlargs
-    }};
-
-}
-
-#[cfg(feature = "sqlite")]
-#[macro_export]
-macro_rules! args {
-    ($($args:expr),*) => {{
-        use sqlx::Arguments;
-        let mut sqlargs = sqlx::sqlite::SqliteArguments::default();
-        $(sqlargs.add($args);)*
-        sqlargs
-    }};
-}
-
-#[cfg(feature = "mssql")]
-#[macro_export]
-macro_rules! args {
-    ($($args:expr),*) => {{
-        use sqlx::Arguments;
-        let mut sqlargs = sqlx::mssql::MssqlArguments::default();
-        $(sqlargs.add($args);)*
-        sqlargs
-    }};
-
-}

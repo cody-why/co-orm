@@ -1,7 +1,7 @@
 /*
  * @Author: plucky
  * @Date: 2022-10-21 17:23:16
- * @LastEditTime: 2024-08-03 12:09:55
+ * @LastEditTime: 2024-08-03 23:59:19
  */
 
 #[tokio::main]
@@ -12,7 +12,7 @@ async fn main() {
 mod test_orm {
     #![allow(unused)]
 
-    use co_orm::{args, query, query_as, Crud};
+    use co_orm::{args, page_args, query, query_as, Crud};
     use sqlx::{
         types::{chrono::NaiveDateTime, BigDecimal},
         Execute,
@@ -93,7 +93,7 @@ mod test_orm {
     #[tokio::test]
     async fn test_page() {
         let pool = get_pool().await.unwrap();
-        let r = User::query_page_by(&pool, "where id>?", args!(1), 1, 3).await;
+        let r = User::query_page_by(&pool, "where id>?", page_args!(1), 1, 3).await;
 
         // println!("count: {:?}",r);
         if let Ok((count, list)) = r {

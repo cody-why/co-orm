@@ -123,7 +123,10 @@ if using sqlx::FromRow, if need skip field, both `#[co-orm(skip)]` add `#[sqlx(s
 ``` rust
  let args = args!(&name, age);
 ```
-
+`page_args`
+``` rust
+ let args = page_args!(&name, age);
+```
 
 `query`
 ```rust

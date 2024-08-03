@@ -1,7 +1,7 @@
 /*
  * @Author: plucky
  * @Date: 2022-10-22 18:08:45
- * @LastEditTime: 2024-08-03 12:43:09
+ * @LastEditTime: 2024-08-04 00:00:07
  */
 
 use crate::db_type::db::*;
@@ -244,17 +244,15 @@ pub fn generate_crud(input: DeriveInput) -> TokenStream {
            ///     println!("count: {}, list: {:?}", count, list);
            /// }
            /// ````
-
-           pub async fn query_page_by(pool: &#pool, where_sql: impl AsRef<str>, args: #db_arguments, page: i32, page_size: i32) -> sqlx::Result<(i64, Vec<Self>)> {
+           pub async fn query_page_by(pool: &#pool, where_sql: impl AsRef<str>, args: (#db_arguments, #db_arguments), page: i32, page_size: i32) -> sqlx::Result<(i64, Vec<Self>)> {
                 let sql = format!("SELECT {} FROM {} {}", #select_columns, #table_name, where_sql.as_ref());
-
                 let count_sql = format!("select count(*) from ({}) as c", sql);
-                let mut a = sqlx::query_scalar_with::<_, i64, _>(&count_sql, args);
-                let arg1 = a.take_arguments().unwrap_or_default().unwrap_or_default();
+                let mut a = sqlx::query_scalar_with::<_, i64, _>(&count_sql, args.0);
+
                 let total = a.fetch_one(pool).await?;
 
                 let sql = format!("{} LIMIT {} OFFSET {}", sql, page_size, page_size * (page - 1));
-                sqlx::query_as_with::<_, Self, _>(&sql, arg1)
+                sqlx::query_as_with::<_, Self, _>(&sql, args.1)
                     .fetch_all(pool)
                     .await
                     .map(|list| (total, list))

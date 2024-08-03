@@ -1,6 +1,6 @@
 [package]
 name = "co-orm-macros"
-version = "0.3.11"
+version = "0.3.12"
 edition = "2021"
 authors = ["plucky"]
 description = "Derive macro for co-orm"
