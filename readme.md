@@ -15,7 +15,7 @@ sqlx = { version = "0.7", features = ["mysql","runtime-tokio-native-tls"] }
 
  ```
  
- * features: mysql, postgres, sqlite, mssql
+ * features: mysql, postgres, sqlite
 
 ## Examples
 ```rust
@@ -123,6 +123,7 @@ if using sqlx::FromRow, if need skip field, both `#[co-orm(skip)]` add `#[sqlx(s
 ``` rust
  let args = args!(&name, age);
 ```
+
 
 `query`
 ```rust

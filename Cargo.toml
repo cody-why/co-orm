@@ -1,6 +1,6 @@
 [package]
 name = "co-orm"
-version = "0.3.10"
+version = "0.3.11"
 edition = "2021"
 authors = ["plucky"]
 description = "Implement Create, Read, Update, and Delete (CRUD) methods for sqlx."
@@ -13,14 +13,14 @@ keywords = [
     "sql",
 ]
 categories = ["database"]
-license = "MIT OR Apache-2.0"
+license = "MIT"
 repository = "https://github.com/cody-why/co-orm"
 documentation = "https://docs.rs/crate/co-orm/"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-co-orm-macros = {version ="0.3.10", optional = true}
+co-orm-macros = {version ="0.3.11"}
 
 # replace latest version with your local version
 [patch.crates-io]
@@ -28,12 +28,14 @@ co-orm-macros = {path = "co-orm-macros"}
 
 
 [dev-dependencies]
-sqlx = { version = "0.7", features = ["mysql", "runtime-tokio-native-tls", "chrono", "bigdecimal"] }
-tokio = { version = "1", features = ["macros"] }
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+# sqlx = { package = "sqlx-oldapi",  version = "0.6", features = ["mssql", "runtime-tokio-native-tls", "chrono", "bigdecimal"] }
+sqlx = { version = "0.8", features = ["mysql", "runtime-tokio-native-tls", "chrono", "bigdecimal"] }
+co-orm ={path = "./", features = ["mysql"]}
 
 
 [features]
-default = ["mysql"]
+default = []
 mysql=["co-orm-macros/mysql"]
 postgres=["co-orm-macros/postgres"]
 sqlite=["co-orm-macros/sqlite"]

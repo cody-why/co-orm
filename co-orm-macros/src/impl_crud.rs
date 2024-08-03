@@ -1,11 +1,10 @@
 /*
  * @Author: plucky
  * @Date: 2022-10-22 18:08:45
- * @LastEditTime: 2024-03-18 21:15:51
- * @Description:
+ * @LastEditTime: 2024-08-03 12:43:09
  */
 
-use crate::db_type::*;
+use crate::db_type::db::*;
 use crate::helper::*;
 use crate::impl_by_field::*;
 use proc_macro::TokenStream;
@@ -40,11 +39,11 @@ pub fn generate_crud(input: DeriveInput) -> TokenStream {
     let fields_insert = fields.iter().filter(|f| !is_seq(f)).collect::<Vec<_>>();
 
     let field_name_insert = fields_insert.iter().map(|field| &field.ident).collect::<Vec<_>>();
-    
+
     // insert (a,b,c) values (?,?,?)
     let insert_columns = fields_insert
         .iter()
-        .map(|field| format!("`{}`",get_field_name(field)))
+        .map(|field| format!("`{}`", get_field_name(field)))
         .collect::<Vec<_>>()
         .join(",");
 
@@ -56,7 +55,7 @@ pub fn generate_crud(input: DeriveInput) -> TokenStream {
 
     let select_columns = fields
         .iter()
-        .map(|field| format!("`{}`",get_field_name(field)))
+        .map(|field| format!("`{}`", get_field_name(field)))
         .collect::<Vec<_>>()
         .join(",");
 
@@ -69,10 +68,7 @@ pub fn generate_crud(input: DeriveInput) -> TokenStream {
     // let values_all = question_marks(fields.len());
 
     // find `orm_pk` or default the first field as the "id" column
-    let id_field = fields
-        .iter()
-        .find(|f| is_id(f))
-        .unwrap_or_else(|| fields.first().unwrap());
+    let id_field = fields.iter().find(|f| is_id(f)).unwrap_or_else(|| fields.first().unwrap());
     let id_column = id_field.ident.as_ref().unwrap();
     let id_name = get_field_name(id_field);
     let id_ty = &id_field.ty;
@@ -99,7 +95,7 @@ pub fn generate_crud(input: DeriveInput) -> TokenStream {
     let update_token = generate_update_field(&fields, &table_name, id_column);
     let curd_by_field = generate_crud_by_field(&fields, &table_name, &update_fields_str, &select_columns, len);
 
-    TokenStream::from(quote! {
+    let ts = quote! {
         impl #struct_name {
             #curd_by_field
             #update_token
@@ -117,11 +113,12 @@ pub fn generate_crud(input: DeriveInput) -> TokenStream {
                    .fetch_one(pool).await
             }
 
+
             /// get by where sql
             /// Example:
-            /// ```` no_run
+            /// ```rust, no_run
             /// User::get_by(&pool, "where id=?", args!(1)).await
-            /// ````
+            /// ```
             pub async fn get_by(pool: &#pool, where_sql: impl AsRef<str>, args: #db_arguments) -> sqlx::Result<Self> {
                 let sql = format!("SELECT {} FROM {} {}",#select_columns, #table_name, where_sql.as_ref());
                 // sqlx::query_as::<_, Self>(&sql)
@@ -129,7 +126,7 @@ pub fn generate_crud(input: DeriveInput) -> TokenStream {
                    .fetch_one(pool).await
             }
 
-            /// query
+            /// query all
             pub async fn query(pool: &#pool) -> sqlx::Result<Vec<Self>> {
                 let sql = format!("SELECT {} FROM {}", #select_columns, #table_name);
 
@@ -144,7 +141,7 @@ pub fn generate_crud(input: DeriveInput) -> TokenStream {
             /// User::query_by(&pool, "where id=?", args!(1)).await
             /// ````
             pub async fn query_by(pool: &#pool, where_sql: impl AsRef<str>, args: #db_arguments) -> sqlx::Result<Vec<Self>> {
-                let sql = format!("SELECT {} FROM {} {}",#select_columns, #table_name, where_sql.as_ref());
+                let sql = format!("SELECT {} FROM {} {}", #select_columns, #table_name, where_sql.as_ref());
 
                 // sqlx::query_as::<_, Self>(&sql)
                 sqlx::query_as_with::<_,Self,_>(&sql, args)
@@ -247,14 +244,22 @@ pub fn generate_crud(input: DeriveInput) -> TokenStream {
            ///     println!("count: {}, list: {:?}", count, list);
            /// }
            /// ````
+
            pub async fn query_page_by(pool: &#pool, where_sql: impl AsRef<str>, args: #db_arguments, page: i32, page_size: i32) -> sqlx::Result<(i64, Vec<Self>)> {
                 let sql = format!("SELECT {} FROM {} {}", #select_columns, #table_name, where_sql.as_ref());
 
-                let total = sqlx::query_scalar_with::<_,i64,_>(&format!("select count(*) from ({}) as c", sql),args.clone())
-                   .fetch_one(pool).await?;
+                let count_sql = format!("select count(*) from ({}) as c", sql);
+                let mut a = sqlx::query_scalar_with::<_, i64, _>(&count_sql, args);
+                let arg1 = a.take_arguments().unwrap_or_default().unwrap_or_default();
+                let total = a.fetch_one(pool).await?;
+
                 let sql = format!("{} LIMIT {} OFFSET {}", sql, page_size, page_size * (page - 1));
-                sqlx::query_as_with::<_, Self,_>(&sql,args).fetch_all(pool).await.map(|list| (total, list))
+                sqlx::query_as_with::<_, Self, _>(&sql, arg1)
+                    .fetch_all(pool)
+                    .await
+                    .map(|list| (total, list))
            }
        }
-    })
+    };
+    TokenStream::from(ts)
 }

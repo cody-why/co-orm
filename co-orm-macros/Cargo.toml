@@ -1,6 +1,6 @@
 [package]
 name = "co-orm-macros"
-version = "0.3.10"
+version = "0.3.11"
 edition = "2021"
 authors = ["plucky"]
 description = "Derive macro for co-orm"
@@ -13,7 +13,7 @@ keywords = [
     "sql",
 ]
 categories = ["database"]
-license = "MIT OR Apache-2.0"
+license = "MIT"
 repository = "https://github.com/cody-why/co-orm"
 documentation = "https://docs.rs/crate/co-orm/"
 
@@ -26,7 +26,7 @@ Inflector = "0"
 proc-macro = true
 
 [features]
-default = ["mysql"]
+default = []
 mysql=[]
 postgres=[]
 sqlite=[]

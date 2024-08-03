@@ -1,7 +1,7 @@
 /*
  * @Author: plucky
  * @Date: 2022-10-21 16:53:21
- * @LastEditTime: 2024-05-17 16:24:23
+ * @LastEditTime: 2024-08-03 12:14:00
  */
 
 //! Derive macro for sqlx to implement Create, Read, Update, and Delete (CRUD) methods.
@@ -13,11 +13,11 @@
 //! sqlx = { version = "0.7", features = ["mysql"] }
 //! ```
 //! features: mysql, postgres, sqlite, mssql
-//! 
-//! # Examples 
+//!
+//! # Examples
 //! ``` no_run,ignore
 //! use co_orm::{Crud, args};
-//! 
+//!
 //! #[derive(Debug, Crud, sqlx::FromRow)]
 //! #[co_orm(rename = "users")] // rename table name
 //! pub struct User {
@@ -27,7 +27,7 @@
 //!     #[co_orm(rename = "name")] // rename field name
 //!     #[co_orm(by)] // generate query_by_field,update_by_field,delete_by_field
 //!     pub name: String,
-//!     #[co_orm(update)] // generate method update_xxx. 
+//!     #[co_orm(update)] // generate method update_xxx.
 //!     pub password: String,
 //!     #[co_orm(skip)] // ignore field
 //!     #[sqlx(skip)]
@@ -35,7 +35,7 @@
 //!     // #[co_orm(skip_insert)] // insert will skip this field.
 //!     // pub update_at: Option<NaiveDateTime>,
 //! }
-//! 
+//!
 //! // use crud
 //! let u = User::get(&pool, 1).await;
 //! println!("get {:?}", u);
@@ -45,7 +45,6 @@
 
 pub use co_orm_macros::Crud;
 pub use co_orm_macros::FromRow;
-
 
 /// sqlx::query_as
 /// ``` no_run,ignore
@@ -77,23 +76,20 @@ macro_rules! query (
     })
 );
 
-
-
-
 #[cfg(feature = "mysql")]
 #[macro_export]
 macro_rules! args {
     // ($sql:expr) => {
     //     args!($sql,);
     // };
-   
+
     ($($args:expr),*) => {{
         use sqlx::Arguments;
         let mut sqlargs = sqlx::mysql::MySqlArguments::default();
         $(sqlargs.add($args);)*
         sqlargs
-        
-        
+
+
     }};
 }
 
@@ -131,5 +127,3 @@ macro_rules! args {
     }};
 
 }
-
-
