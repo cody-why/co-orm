@@ -1,7 +1,7 @@
 /*
  * @Author: plucky
  * @Date: 2022-10-19 17:45:59
- * @LastEditTime: 2024-08-03 12:45:52
+ * 
  */
 
  use quote::{format_ident, quote, __private::TokenStream};
@@ -11,7 +11,7 @@
  
  
  /// only update one field
- pub fn generate_update_field(fields: &[&Field], table_name:&str, id_column: &syn::Ident) -> TokenStream {
+ pub(crate) fn generate_update_field(fields: &[&Field], table_name:&str, id_column: &syn::Ident) -> TokenStream {
      let update_tokens = fields.iter()
          .filter_map(|field| {
              if has_attribute_update(field) {
@@ -23,7 +23,7 @@
    
                  let id_name = id_column.to_string();
                  
-                 let (pool, query_result) = db_pool_token();
+                 let (pool, query_result, _) = db_pool_token();
                  let placeholder = db_placeholder(1);
                  
                  let field_name = get_field_name(field);
@@ -54,9 +54,9 @@
  }
  
  
- 
+ #[allow(dead_code)]
  /// query_by_field,update_by_field,delete_by_field
- pub fn generate_crud_by_field(fields: &[&Field], table_name:&str, update_fields_str:&str, select_columns:&str, len:usize) -> TokenStream {
+ pub(crate) fn generate_crud_by_field(fields: &[&Field], table_name:&str, update_fields_str:&str, select_columns:&str, len:usize) -> TokenStream {
      let generate_tokens = fields.iter()
          .filter_map(|field| {
              if has_attribute_by(field) {
@@ -70,7 +70,7 @@
                  let fn_delete = format_ident!("delete_by_{}",field_ident);
                  let fn_update = format_ident!("update_by_{}",field_ident);
  
-                 let (pool, query_result) = db_pool_token();
+                 let (pool, query_result, _) = db_pool_token();
                  let placeholder = db_placeholder(1);
                  let placeholder_u = db_placeholder(len+1);
                  
@@ -123,7 +123,7 @@
  
  #[allow(dead_code)]
  /// impl sqlx::FromRow
- pub fn generate_impl_from_row(input: &syn::DeriveInput) -> TokenStream {
+ pub(crate) fn generate_impl_from_row(input: &syn::DeriveInput) -> TokenStream {
     //fields: &[&Field], 
     let struct_name = &input.ident;
     let fields = match &input.data {

@@ -1,11 +1,11 @@
-/*
- * @Date: 2024-08-03 05:14:25
- * @LastEditTime: 2024-08-03 23:36:05
- */
+mod pool;
+
 fn main() {}
+
 #[cfg(test)]
 mod test_orm {
     #![allow(unused)]
+    use crate::pool::get_pool;
     use co_orm::{args, query, query_as, Crud};
     use sqlx::{types::chrono::NaiveDateTime, Execute, FromRow};
 
@@ -16,7 +16,7 @@ mod test_orm {
         pub name: String,
         pub password: String,
         // #[sqlx(default)]
-        pub addr: Option<String>,
+        pub status: Option<i32>,
     }
 
     // impl<'r> FromRow<'r, sqlx::mssql::MssqlRow> for User {
@@ -26,30 +26,46 @@ mod test_orm {
     // }
 
     impl User {
-        #[cfg(feature = "mssql")]
+        #[cfg(feature = "mysql")]
         pub async fn get_by(
-            pool: &sqlx::MssqlPool, where_sql: impl AsRef<str>, args: sqlx::mssql::MssqlArguments,
+            pool: &sqlx::MySqlPool, where_sql: impl AsRef<str>, args: sqlx::mysql::MySqlArguments,
         ) -> sqlx::Result<Self> {
-            let sql = format!("SELECT {} FROM {} {}", "`id`,`name`,`password`", "users", where_sql.as_ref());
+            let sql = format!(
+                "SELECT {} FROM {} {}",
+                "`id`,`name`,`password`",
+                "users",
+                where_sql.as_ref()
+            );
             sqlx::query_as_with::<_, Self, _>(&sql, args).fetch_one(pool).await
         }
         #[cfg(feature = "postgres")]
         pub async fn get_by(
             pool: &sqlx::PgPool, where_sql: impl AsRef<str>, args: sqlx::postgres::PgArguments,
         ) -> sqlx::Result<Self> {
-            let sql = format!("SELECT {} FROM {} {}", "`id`,`name`,`password`", "users", where_sql.as_ref());
+            let sql = format!(
+                "SELECT {} FROM {} {}",
+                "`id`,`name`,`password`",
+                "users",
+                where_sql.as_ref()
+            );
 
             sqlx::query_as_with::<_, Self, _>(&sql, args).fetch_one(pool).await
         }
 
         #[cfg(feature = "postgres")]
         pub async fn query_page_by(
-            pool: &sqlx::PgPool, where_sql: impl AsRef<str>, args: sqlx::postgres::PgArguments, page: i32, page_size: i32,
+            pool: &sqlx::PgPool, where_sql: impl AsRef<str>, args: sqlx::postgres::PgArguments,
+            page: i32, page_size: i32,
         ) -> sqlx::Result<(i64, Vec<Self>)> {
             use std::any::type_name_of_val;
 
             use sqlx::Execute;
-            let sql = format!("SELECT {} FROM {} {}", "`id`,`name`,`password`", "users", where_sql.as_ref());
+            let sql = format!(
+                "SELECT {} FROM {} {}",
+                "`id`,`name`,`password`",
+                "users",
+                where_sql.as_ref()
+            );
 
             // let total = sqlx::query_scalar_with::<_, i64, _>(&format!("select count(*) from ({}) as c", sql), args.0)
             //     .fetch_one(pool)
@@ -73,17 +89,18 @@ mod test_orm {
 
         #[cfg(feature = "mysql")]
         pub async fn query_page_by(
-            pool: &sqlx::MySqlPool, where_sql: impl AsRef<str>, args: sqlx::mysql::MySqlArguments, page: i32, page_size: i32,
+            pool: &sqlx::MySqlPool, where_sql: impl AsRef<str>, args: sqlx::mysql::MySqlArguments,
+            page: i32, page_size: i32,
         ) -> sqlx::Result<(i64, Vec<Self>)> {
             use sqlx::Execute;
-            let sql = format!("SELECT {} FROM {} {}", "`id`,`name`,`password`", "users", where_sql.as_ref());
+            let sql = format!("SELECT {} FROM {} {}", "*", "users", where_sql.as_ref());
 
             // let total = sqlx::query_scalar_with::<_, i64, _>(&format!("select count(*) from ({}) as c", sql), args.0)
             //     .fetch_one(pool)
             //     .await?;
             let count_sql = format!("select count(*) from ({}) as c", sql);
             let mut a = sqlx::query_scalar_with::<_, i64, _>(&count_sql, args);
-            let arg1 = a.take_arguments().unwrap_or_default();
+            let arg1 = a.take_arguments().unwrap_or_default().unwrap_or_default();
             let total = a.fetch_one(pool).await?;
 
             let sql = format!("{} LIMIT {} OFFSET {}", sql, page_size, page_size * (page - 1));
@@ -95,11 +112,30 @@ mod test_orm {
 
         #[cfg(feature = "sqlite")]
         pub async fn get_by(
-            pool: &sqlx::SqlitePool, where_sql: impl AsRef<str>, args: sqlx::sqlite::SqliteArguments<'_>,
+            pool: &sqlx::SqlitePool, where_sql: impl AsRef<str>,
+            args: sqlx::sqlite::SqliteArguments<'_>,
         ) -> sqlx::Result<Self> {
-            let sql = format!("SELECT {} FROM {} {}", "`id`,`name`,`password`", "users", where_sql.as_ref());
+            let sql = format!(
+                "SELECT {} FROM {} {}",
+                "`id`,`name`,`password`",
+                "users",
+                where_sql.as_ref()
+            );
 
             sqlx::query_as_with::<_, Self, _>(&sql, args).fetch_one(pool).await
         }
+    }
+
+    #[cfg(feature = "test_mysql")]
+    pub async fn update_by(
+        pool: &sqlx::MySqlPool, where_sql: impl AsRef<str>, args: sqlx::mysql::MySqlArguments,
+    ) -> sqlx::Result<sqlx::mysql::MySqlQueryResult> {
+        use sqlx::Arguments;
+        let sql = format!("UPDATE {} SET {} {}", "users", "status=?", where_sql.as_ref());
+        // 期望值是update status = 3 where id = 2, 但是实际是update status = 2 where id = 3
+        // 这个方法不行
+        // let mut args1: sqlx::mysql::MySqlArguments =
+        //     sqlx::query(&sql).bind(3).take_arguments().unwrap().unwrap();
+        sqlx::query_with(&sql, args).bind(3).execute(pool).await?;
     }
 }

@@ -1,7 +1,7 @@
 /*
  * @Author: plucky
  * @Date: 2023-10-29 15:56:49
- * @LastEditTime: 2024-08-03 12:43:53
+ * 
  */
 
 use std::collections::HashSet;
@@ -15,17 +15,18 @@ use crate::{db_type::db::*, util::*};
 /// `#[co_orm(skip)]`
 pub(crate) fn is_skip(field: &Field) -> bool {
     // has_attribute(&field.attrs, "orm_ignore") |
-    has_attribute_value(&field.attrs, "co_orm", "skip") | has_attribute_value(&field.attrs, "sqlx", "skip")
+    has_attribute_value(field, "co_orm", "skip") | has_attribute_value(field, "sqlx", "skip")
 }
 
 /// primary key
 /// `#[co_orm(id)]`
 pub(crate) fn is_id(field: &Field) -> bool {
-    has_attribute_value(&field.attrs, "co_orm", "id")
+    has_attribute_value(field, "co_orm", "id")
 }
 
 pub(crate) fn is_seq(field: &Field) -> bool {
-    has_attribute_value(&field.attrs, "co_orm", "seq") | has_attribute_value(&field.attrs, "co_orm", "skip_insert")
+    has_attribute_value(field, "co_orm", "seq")
+        | has_attribute_value(field, "co_orm", "skip_insert")
 }
 
 /// table_name
@@ -34,7 +35,8 @@ pub(crate) fn get_table_name(input: &DeriveInput) -> String {
     // to_table_case: UserDetail => user_details
     // to_snake_case: UserDetail => user_detail
 
-    get_attribute_by_key(&input.attrs, "co_orm", "rename").unwrap_or_else(|| input.ident.to_string().to_snake_case())
+    get_attribute_by_key(&input.attrs, "co_orm", "rename")
+        .unwrap_or_else(|| input.ident.to_string().to_snake_case())
 }
 
 /// field_name if rename
@@ -46,24 +48,30 @@ pub(crate) fn get_field_name(field: &Field) -> String {
 
 /// `#[co_orm(update)]`
 pub(crate) fn has_attribute_update(field: &Field) -> bool {
-    has_attribute_value(&field.attrs, "co_orm", "update")
+    has_attribute_value(field, "co_orm", "update")
 }
 
 /// `#[co_orm(by)]`
 pub(crate) fn has_attribute_by(field: &Field) -> bool {
-    has_attribute_value(&field.attrs, "co_orm", "by")
+    has_attribute_value(field, "co_orm", "by")
 }
 
 // make string "?, ?, ?" or "$1, $2, $3"
 pub(crate) fn question_marks(max: usize) -> String {
     let itr = 1..max + 1;
-    itr.into_iter().map(db_placeholder).collect::<Vec<String>>().join(",")
+    itr.into_iter()
+        .map(db_placeholder)
+        .collect::<Vec<String>>()
+        .join(",")
 }
 
 #[allow(unused)]
 pub(crate) fn check_attributes(attrs: &[syn::Attribute]) -> Result<(), syn::Error> {
     // 检查属性是否 co_orm(id), co_orm(seq), co_orm(rename="name"), co_orm(skip), co_orm(update), co_orm(by),
-    let valid_attrs: HashSet<_> = ["rename", "id", "by", "seq", "skip", "update"].iter().cloned().collect();
+    let valid_attrs: HashSet<_> = ["rename", "id", "by", "seq", "skip", "update"]
+        .iter()
+        .cloned()
+        .collect();
 
     for attr in attrs {
         if attr.path().is_ident("co_orm") {

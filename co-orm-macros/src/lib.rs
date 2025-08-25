@@ -1,7 +1,7 @@
 /*
  * @Author: plucky
  * @Date: 2022-09-04 00:01:24
- * @LastEditTime: 2024-08-03 12:47:01
+ * 
  */
 
 extern crate proc_macro;
@@ -22,16 +22,13 @@ mod helper;
 
 
 /// `#[derive(Crud)]`
-/// generate method: get, get_by, query, query_by, update, delete, insert, insert_all, query_page_by
+/// generate method: get, get_by, get_where, query, query_by, query_where, update, update_by, delete, delete_by, delete_where, insert, insert_all, query_page_by, query_page_where
 /// 
 /// attributes:
 /// 
 /// `#[co_orm(id)]`
 /// default first field is primary key or set.
-/// 
-/// `#[co_orm(seq)]`
-/// sequence field, auto increment. insert will skip this field.
-/// 
+///  
 /// `#[co_orm(rename="name")]`
 /// rename table name or field name. 
 /// default table name by struct name to_table_case: UserDetail => user_detail. 
@@ -42,15 +39,12 @@ mod helper;
 /// 
 /// `#[co_orm(update)]`
 /// generate method update_xxx. 
-/// 
-/// `#[co_orm(by)]`
-/// generate qet_by_field, query_by_field, update_by_field, delete_by_field.
-/// 
+///  
 /// `#[co_orm(skip_insert)]`
 /// insert will skip this field.
 #[proc_macro_derive(Crud, 
     attributes(
-        co_orm, // co_orm(id), co_orm(seq), co_orm(rename="name"), co_orm(skip), co_orm(update), co_orm(by),
+        co_orm, // co_orm(id), co_orm(skip_insert), co_orm(rename="name"), co_orm(skip), co_orm(update), co_orm(by),
         
     )
 )]

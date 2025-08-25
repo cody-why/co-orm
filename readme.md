@@ -1,139 +1,185 @@
-# Implement Create, Read, Update, and Delete (CRUD) methods for sqlx.
+# co-orm
 
 [![Crates.io](https://img.shields.io/crates/v/co-orm.svg)](https://crates.io/crates/co-orm)
 [![Docs](https://docs.rs/co-orm/badge.svg)](https://docs.rs/co-orm)
 [![Download](https://img.shields.io/crates/d/co-orm.svg?style=flat-square)](https://crates.io/crates/co-orm)
 
+A high-performance, async CRUD library for sqlx that provides elegant database operations with compile-time safety.
 
-## Use
- add the following to your project's Cargo.toml:
- ```toml
+## Features
+
+- **Zero-cost abstractions** - Minimal runtime overhead
+- **Type-safe queries** - Compile-time SQL generation
+- **Async-first** - Built on tokio and sqlx
+- **Flexible filtering** - Powerful WHERE clause builder
+- **Multiple databases** - MySQL, PostgreSQL, SQLite support
+- **Macro-driven** - Simple derive macros for common operations
+
+## Installation
+
+Add to your `Cargo.toml`:
+
+```toml
 [dependencies]
-co-orm = { virsion = "0.3", features = ["mysql"] }
-sqlx = { version = "0.7", features = ["mysql","runtime-tokio-native-tls"] }
+co-orm = { version = "0.3", features = ["mysql"] }
+sqlx = { version = "0.8", features = ["mysql", "runtime-tokio-native-tls"] }
+```
 
+Available features: `mysql`, `postgres`, `sqlite`
 
- ```
- 
- * features: mysql, postgres, sqlite
+## Quick Start
 
-## Examples
+### Basic Model Definition
+
 ```rust
-#[derive(Debug, Crud, sqlx::FromRow)]
-#[co_orm(rename = "users")] // rename table name
+use co_orm::{Crud, sqlx::FromRow};
+use chrono::NaiveDateTime;
+
+#[derive(Debug, Crud, FromRow)]
+#[co_orm(rename = "users")]
 struct User {
-    // co_orm(id) // default first field is primary key
-    #[co_orm(seq)] // sequence field, insert will ignore this field
-    pub id: u64,
-    [co_orm(rename = "name")] // rename field name
-    #[co_orm(by)] // generate query_by_field,update_by_field,delete_by_field
+    #[co_orm(skip_insert)]
+    pub id: i64,
+    #[co_orm(rename = "name")]
     pub name: String,
-    #[co_orm(update)] // generate method update_xxx. 
+    #[co_orm(update)]
     pub password: String,
-    #[co_orm(skip)] // ignore field
+    #[co_orm(skip)]
     #[sqlx(skip)]
     pub addr: Option<String>,
-    // 
-    // pub age: i32,
-    // #[co_orm(skip_insert)] // insert will ignore this field
+    pub age: Option<u32>,
+    #[co_orm(skip_insert)]
+    pub update_at: Option<NaiveDateTime>,
 }
-
-
-pub async fn get_pool() -> Result<MySqlPool> {
-    MySqlPoolOptions::new()
-        .connect("mysql://root:password@192.168.1.199:3306/hello").await
-}
-
-#[tokio::test]
-async fn test_query() {
-    let pool=get_pool().await.unwrap();
-    let u = User::get(&pool, 1).await;
-    println!("get {:?}", u);
-    let u = User::get_by(&pool, "where id=?", args!(1)).await;
-    println!("get_by {:?}", u);
-    let u = User::query_by_name(&pool, "plucky".into()).await;
-    println!("query_by_name {:?}", u);
-    let u =User::query(&pool).await;
-    println!("list {:?}",u);
-
-    // u.update(&pool).await;
-    // u.insert(&pool).await;
-    // u.delete(&pool).await
-
-    // let list = vec![User::new(0, "lusy3", "123456"),User::new(0, "lusy5", "123456")];
-    // let r =User::insert_all(&pool, list).await;
-    // println!("list: {:?}",r);
-    
-    
-}
-
 ```
 
+### Basic CRUD Operations
 
-## `#[derive(Crud)]`
-
-generate method: get, get_by, query, query_by, update, delete, insert, insert_all, query_page_by
-
-### attributes:
-
-`#[co_orm(id)]`
-
-default first field is primary key or set.
-
-`#[co_orm(seq)]`
-
-sequence field, auto increment. insert will skip this field.
-
-`#[co_orm(skip_insert)]`
-
-insert will skip this field.
-
-`#[co_orm(rename="name")]`
-
-rename table name or field name. 
-default table name by struct name to_table_case: UserDetail => user_detail. 
-default field name by field name to_snake_case: UserDetail => user_detail. 
-
-`#[co_orm(skip)]`
-
-ignore field. using sqlx::FromRow, skip need `#[co_orm(skip)]` and `#[sqlx(skip)]`
-
-`#[co_orm(update)]`
-
-generate method update_xxx. 
-
-`#[co_orm(by)]`
-
-generate qet_by_field, query_by_field, update_by_field, delete_by_field.
-
-`#[co_orm(skip_insert)]`
-insert will skip this field.
-
-
-## `#[derive(FromRow)]`
-
-generate impl sqlx::FromRow for struct.
-or use `#[derive(sqlx::FromRow)]`.
-if using sqlx::FromRow, if need skip field, both `#[co-orm(skip)]` add `#[sqlx(skip)]` .
-
-## macro_export
-
-
-`args`
-``` rust
- let args = args!(&name, age);
-```
-`page_args`
-``` rust
- let args = page_args!(&name, age);
-```
-
-`query`
 ```rust
-query!("insert into users (name, password) values (?,?)", name, password).execute(&pool).await
+use co_orm::{Crud, Where};
+
+// Get by primary key
+let user = User::get(&pool, 1).await?;
+
+// Query all
+let users = User::query(&pool).await?;
+
+// Insert
+let new_user = User { /* ... */ };
+new_user.insert(&pool).await?;
+
+// Update
+user.update(&pool).await?;
+
+// Delete
+user.delete(&pool).await?;
 ```
- 
-`query_as`
+
+### Advanced Querying
+
 ```rust
-query_as!(User, "select * from users where name = ?", name).fetch_one(&pool).await
+// Simple conditions
+let users = User::query_where(&pool, Where::new()
+    .eq("status", "active")
+    .and()
+    .ge("age", 18)
+).await?;
+
+// Complex grouped conditions
+let users = User::query_where(&pool, Where::new()
+    .eq("status", "active")
+    .and_group(|w| {
+        w.gt("age", 18)
+         .and()
+         .lt("age", 65)
+    })
+    .or_group(|w| {
+        w.eq("name", "admin")
+         .and()
+         .ge("age", 21)
+    })
+).await?;
+
+// Pagination
+let (count, users) = User::query_page_where(
+    &pool,
+    Where::new().eq("status", "active"),
+    1,  // page
+    10  // page_size
+).await?;
 ```
+
+## Available Methods
+
+The `#[derive(Crud)]` macro generates these methods:
+
+- **Read**: `get()`, `get_by()`, `get_where()`, `query()`, `query_by()`, `query_where()`
+- **Write**: `insert()`, `insert_all()`, `update()`, `update_by()`, `update_where()`
+- **Delete**: `delete()`, `delete_by()`, `delete_where()`
+- **Pagination**: `query_page_by()`, `query_page_where()`
+
+## Field Attributes
+
+| Attribute | Description |
+|-----------|-------------|
+| `#[co_orm(id)]` | Mark as primary key (default: first field) |
+| `#[co_orm(skip_insert)]` | Skip field during insert operations |
+| `#[co_orm(rename = "name")]` | Rename table or field in database |
+| `#[co_orm(skip)]` | Ignore field completely |
+| `#[co_orm(update)]` | Generate update methods for this field |
+
+## Query Operators
+
+| Method | SQL | Description |
+|--------|-----|-------------|
+| `eq(col, value)` | `=` | Equal |
+| `ne(col, value)` | `<>` | Not equal |
+| `gt(col, value)` | `>` | Greater than |
+| `lt(col, value)` | `<` | Less than |
+| `ge(col, value)` | `>=` | Greater or equal |
+| `le(col, value)` | `<=` | Less or equal |
+| `like(col, value)` | `LIKE` | Pattern matching |
+| `between(col, start, end)` | `BETWEEN` | Range query |
+| `r#in(col, values)` | `IN` | Set membership |
+| `is_null(col)` | `IS NULL` | Null check |
+| `is_not_null(col)` | `IS NOT NULL` | Not null check |
+| `raw(fragment)` | Custom | Custom SQL fragment |
+
+## Logical Operators
+
+| Method | Description |
+|--------|-------------|
+| `and()` | AND logic |
+| `or()` | OR logic |
+| `and_group(f)` | AND grouping |
+| `or_group(f)` | OR grouping |
+
+## Utility Macros
+
+```rust
+// Query arguments
+let args = args!(&name, age);
+
+// Pagination arguments  
+let args = page_args!(&name, age);
+
+// Raw queries
+query!("INSERT INTO users (name, password) VALUES (?, ?)", name, password)
+    .execute(&pool).await?;
+
+// Typed queries
+query_as!(User, "SELECT * FROM users WHERE name = ?", name)
+    .fetch_one(&pool).await?;
+```
+
+## Examples
+
+See the `examples/` directory for complete working examples:
+
+- `crud.rs` - Basic CRUD operations
+- `where_examples.rs` - Advanced querying patterns
+- `pool.rs` - Connection pool management
+
+## License
+
+Licensed under the MIT License.

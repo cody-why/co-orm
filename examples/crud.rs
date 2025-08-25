@@ -1,8 +1,9 @@
 /*
- * @Author: plucky
- * @Date: 2022-10-21 17:23:16
- * @LastEditTime: 2024-08-03 23:59:19
- */
+* @Author: plucky
+* @Date: 2022-10-21 17:23:16
+*/
+
+mod pool;
 
 #[tokio::main]
 async fn main() {
@@ -12,7 +13,8 @@ async fn main() {
 mod test_orm {
     #![allow(unused)]
 
-    use co_orm::{args, page_args, query, query_as, Crud};
+    use crate::pool::get_pool;
+    use co_orm::{args, page_args, query, query_as, Crud, Where};
     use sqlx::{
         types::{chrono::NaiveDateTime, BigDecimal},
         Execute,
@@ -22,20 +24,20 @@ mod test_orm {
     #[co_orm(rename = "users")] // rename table name
     struct User {
         // #[co_orm(id)] // default first field is primary key
-        #[co_orm(seq)] // sequence field, insert will ignore this field
+        #[co_orm(skip_insert)] // insert will ignore this field
         pub id: i64,
         #[co_orm(rename = "name")] // rename field name
         #[sqlx(rename = "name")]
-        #[co_orm(by)] // generate query_by_field,update_by_field,delete_by_field
         pub name: String,
         #[co_orm(update)] // generate method update_xxx.
         pub password: String,
         #[co_orm(skip)] // ignore field
         #[sqlx(skip)]
-        pub addr: Option<String>,
+        pub skip: Option<String>,
         // pub amount: Option<BigDecimal>, // not support sqlite
         #[co_orm(skip_insert)] // insert will ignore this field
         pub update_at: Option<NaiveDateTime>,
+        pub status: Option<i32>,
     }
 
     impl User {
@@ -44,30 +46,12 @@ mod test_orm {
                 id,
                 name: name.into(),
                 password: password.into(),
-                addr: None,
+                skip: None,
                 // amount: None,
                 update_at: None,
+                status: None,
             }
         }
-    }
-
-    #[cfg(feature = "mysql")]
-    pub async fn get_pool() -> sqlx::Result<sqlx::MySqlPool> {
-        sqlx::mysql::MySqlPoolOptions::new()
-            .connect("mysql://root:789789@192.168.1.199:3306/hello")
-            .await
-    }
-
-    #[cfg(feature = "postgres")]
-    pub async fn get_pool() -> sqlx::Result<sqlx::PgPool> {
-        sqlx::postgres::PgPoolOptions::new()
-            .connect("postgres://postgres:password@192.168.1.199:5432/postgres")
-            .await
-    }
-
-    #[cfg(feature = "sqlite")]
-    pub async fn get_pool() -> sqlx::Result<sqlx::SqlitePool> {
-        sqlx::sqlite::SqlitePool::connect("sqlite://:memory:").await
     }
 
     #[tokio::test]
@@ -80,9 +64,7 @@ mod test_orm {
         let u = User::get_by(&pool, "where name=?", args!("jack")).await;
         println!("get_by {:?}", u);
         println!("");
-        let u = User::query_by_name(&pool, "jack".into()).await;
-        println!("query_by_name {:?}", u);
-        println!("");
+
         let u = User::query(&pool).await;
         println!("query {:?}", u);
         println!("");
@@ -110,10 +92,8 @@ mod test_orm {
         let r = _u.update(&pool).await;
         println!("update {:?}", r);
 
-        let r = _u.update_by(&pool, format!("where id={}", 100)).await;
+        let r = _u.update_where(&pool, Where::new().eq("id", 100)).await;
         println!("update_by {:?}", r);
-        // let r = _u.update_password(&pool).await;
-        println!("update_password {:?}", r);
     }
 
     #[tokio::test]
@@ -140,7 +120,10 @@ mod test_orm {
     #[tokio::test]
     async fn test_insert_all() {
         let pool = get_pool().await.unwrap();
-        let list = vec![User::new(0, "lusy1", "123456"), User::new(0, "lusy2", "123456")];
+        let list = vec![
+            User::new(0, "lusy1", "123456"),
+            User::new(0, "lusy2", "123456"),
+        ];
         let r = User::insert_all(&pool, list).await;
         println!("list: {:?}", r);
     }
