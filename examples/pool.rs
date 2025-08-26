@@ -19,3 +19,10 @@ pub async fn get_pool() -> sqlx::Result<sqlx::PgPool> {
 pub async fn get_pool() -> sqlx::Result<sqlx::SqlitePool> {
     sqlx::sqlite::SqlitePool::connect("sqlite://:memory:").await
 }
+
+// #[cfg(feature = "any")]
+// pub async fn get_pool() -> sqlx::Result<sqlx::Pool<sqlx::Any>> {
+//     dotenv::dotenv().ok();
+//     let db_url = std::env::var("DATABASE_URL").expect("DATABASE_URL must be set");
+//     sqlx::Pool::<sqlx::Any>::connect(&db_url).await
+// }

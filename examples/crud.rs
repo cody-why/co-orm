@@ -4,55 +4,17 @@
 */
 
 mod pool;
+mod user;
 
 #[tokio::main]
-async fn main() {
-    // test_orm::test_query().await;
-}
+async fn main() {}
 
 mod test_orm {
     #![allow(unused)]
 
-    use crate::pool::get_pool;
-    use co_orm::{args, page_args, query, query_as, Crud, Where};
-    use sqlx::{
-        types::{chrono::NaiveDateTime, BigDecimal},
-        Execute,
-    };
-
-    #[derive(Debug, Crud, sqlx::FromRow)]
-    #[co_orm(rename = "users")] // rename table name
-    struct User {
-        // #[co_orm(id)] // default first field is primary key
-        #[co_orm(skip_insert)] // insert will ignore this field
-        pub id: i64,
-        #[co_orm(rename = "name")] // rename field name
-        #[sqlx(rename = "name")]
-        pub name: String,
-        #[co_orm(update)] // generate method update_xxx.
-        pub password: String,
-        #[co_orm(skip)] // ignore field
-        #[sqlx(skip)]
-        pub skip: Option<String>,
-        // pub amount: Option<BigDecimal>, // not support sqlite
-        #[co_orm(skip_insert)] // insert will ignore this field
-        pub update_at: Option<NaiveDateTime>,
-        pub status: Option<i32>,
-    }
-
-    impl User {
-        pub fn new(id: i64, name: impl Into<String>, password: impl Into<String>) -> Self {
-            Self {
-                id,
-                name: name.into(),
-                password: password.into(),
-                skip: None,
-                // amount: None,
-                update_at: None,
-                status: None,
-            }
-        }
-    }
+    use crate::{pool::get_pool, user::User};
+    use co_orm::{args, page_args, query, query_as, Where};
+    use sqlx::Execute;
 
     #[tokio::test]
     pub async fn test_query() {
@@ -87,19 +49,19 @@ mod test_orm {
     async fn test_update() {
         let pool = get_pool().await.unwrap();
 
-        let _u = User::new(2, "jack", "123456a");
+        let _u = User::new(2, "jack", "123456a", 18);
 
         let r = _u.update(&pool).await;
         println!("update {:?}", r);
 
-        let r = _u.update_where(&pool, Where::new().eq("id", 100)).await;
+        let r = _u.update_by(&pool, "where id = 2").await;
         println!("update_by {:?}", r);
     }
 
     #[tokio::test]
     async fn test_insert() {
         let pool = get_pool().await.unwrap();
-        let _u = User::new(0, "lusy", "123456");
+        let _u = User::new(0, "lusy", "123456", 18);
         let r = _u.insert(&pool).await;
         println!("list: {:?}", r);
     }
@@ -108,7 +70,7 @@ mod test_orm {
     async fn test_delete() {
         let pool = get_pool().await.unwrap();
 
-        let _u = User::new(10, "lusy", "123456");
+        let _u = User::new(10, "lusy", "123456", 18);
         let r = _u.delete(&pool).await;
         println!("delete: {:?}", r);
         let r = User::delete_by(&pool, "where name=?", args!("leo")).await;
@@ -121,8 +83,8 @@ mod test_orm {
     async fn test_insert_all() {
         let pool = get_pool().await.unwrap();
         let list = vec![
-            User::new(0, "lusy1", "123456"),
-            User::new(0, "lusy2", "123456"),
+            User::new(0, "lusy1", "123456", 18),
+            User::new(0, "lusy2", "123456", 18),
         ];
         let r = User::insert_all(&pool, list).await;
         println!("list: {:?}", r);

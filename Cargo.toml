@@ -1,6 +1,6 @@
 [package]
 name = "co-orm"
-version = "0.3.13"
+version = "0.3.15"
 edition = "2021"
 authors = ["plucky"]
 description = "Implement Create, Read, Update, and Delete (CRUD) methods for sqlx."
@@ -41,6 +41,7 @@ default = ["mysql"]
 mysql=["co-orm-macros/mysql", "sqlx/mysql"]
 postgres=["co-orm-macros/postgres", "sqlx/postgres"]
 sqlite=["co-orm-macros/sqlite", "sqlx/sqlite"]
+# any=["co-orm-macros/any", "sqlx/any"]
 # mssql=["co-orm-macros/mssql", "sqlx/mssql"]
 
 

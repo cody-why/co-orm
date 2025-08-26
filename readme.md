@@ -122,7 +122,7 @@ The `#[derive(Crud)]` macro generates these methods:
 
 | Attribute | Description |
 |-----------|-------------|
-| `#[co_orm(id)]` | Mark as primary key (default: first field) |
+| `#[co_orm(id)]` | Mark as primary key (default: first field), for update and delete. |
 | `#[co_orm(skip_insert)]` | Skip field during insert operations |
 | `#[co_orm(rename = "name")]` | Rename table or field in database |
 | `#[co_orm(skip)]` | Ignore field completely |

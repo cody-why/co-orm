@@ -108,6 +108,7 @@ pub(crate) fn generate_crud(input: DeriveInput) -> TokenStream {
                 sqlx::query_as::<_, Self>(&sql)
                    .bind(id)
                    .fetch_one(pool).await
+
             }
 
 
@@ -255,21 +256,21 @@ pub(crate) fn generate_crud(input: DeriveInput) -> TokenStream {
                 .execute(pool).await
             }
 
-            /// update by `co_orm::Where`
-            /// # Example:
-            /// ```ignore
-            /// let w = Where::new().eq("id", 1);
-            /// User::update_where(pool, w).await?;
-            /// ```
-            pub async fn update_where(&self, pool: &#pool, w: co_orm::Where) -> sqlx::Result<#query_result> {
-                let (where_sql, _args) = w.build();
-                let sql = format!("UPDATE {} SET {} {}", #table_name, #update_fields_str, where_sql);
-                sqlx::query(&sql)
-                #(
-                    .bind(&self.#update_fields)
-                )*
-                .execute(pool).await
-            }
+            // /// update by `co_orm::Where`
+            // /// # Example:
+            // /// ```ignore
+            // /// let w = Where::new().eq("id", 1);
+            // /// User::update_where(pool, w).await?;
+            // /// ```
+            // pub async fn update_where(&self, pool: &#pool, w: co_orm::Where) -> sqlx::Result<#query_result> {
+            //     let (where_sql, _args) = w.build();
+            //     let sql = format!("UPDATE {} SET {} {}", #table_name, #update_fields_str, where_sql);
+            //     sqlx::query(&sql)
+            //     #(
+            //         .bind(&self.#update_fields)
+            //     )*
+            //     .execute(pool).await
+            // }
 
             /// insert all list
             pub async fn insert_all(pool: &#pool, list: Vec<Self>) -> sqlx::Result<u64> {

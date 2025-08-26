@@ -1,4 +1,5 @@
 mod pool;
+mod user;
 
 #[tokio::main]
 async fn main() {}
@@ -13,41 +14,7 @@ mod test_orm {
         Execute,
     };
 
-    #[derive(Debug, Crud, sqlx::FromRow)]
-    #[co_orm(rename = "users")] // rename table name
-    struct User {
-        // #[co_orm(id)] // default first field is primary key
-        #[co_orm(skip_insert)] // insert will ignore this field
-        pub id: i64,
-        #[co_orm(rename = "name")] // rename field name
-        #[sqlx(rename = "name")]
-        pub name: String,
-        #[co_orm(update)] // generate method update_xxx.
-        pub password: String,
-        #[co_orm(skip)] // ignore field
-        #[sqlx(skip)]
-        pub addr: Option<String>,
-        // pub amount: Option<BigDecimal>, // not support sqlite
-        #[co_orm(skip_insert)] // insert will ignore this field
-        pub update_at: Option<NaiveDateTime>,
-        pub age: Option<u32>,
-        pub status: Option<i32>,
-    }
-
-    impl User {
-        pub fn new(id: i64, name: impl Into<String>, password: impl Into<String>) -> Self {
-            Self {
-                id,
-                name: name.into(),
-                password: password.into(),
-                addr: None,
-                // amount: None,
-                update_at: None,
-                age: None,
-                status: None,
-            }
-        }
-    }
+    use crate::user::User;
 
     /// 基础 Where 方法使用示例
     #[tokio::test]
@@ -161,14 +128,20 @@ mod test_orm {
     pub async fn test_where_crud() {
         let pool = get_pool().await.unwrap();
 
+        let mut user = User {
+            id: 0,
+            name: "test_user".to_string(),
+            password: "new_password".to_string(),
+            age: Some(25),
+            skip: None,
+            update_at: None,
+            status: None,
+        };
         // 1. 使用 Where 进行条件更新
-        let mut user = User::new(0, "test_user", "new_password");
-        user.age = Some(25);
-
-        let result = user
-            .update_where(&pool, Where::new().eq("name", "jack").and().eq("status", 1))
-            .await;
-        println!("条件更新结果: {:?}", result);
+        // let result = user
+        //     .update_where(&pool, Where::new().eq("name", "jack").and().eq("status", 1))
+        //     .await;
+        // println!("条件更新结果: {:?}", result);
 
         // 2. 使用 Where 进行条件删除
         let result =

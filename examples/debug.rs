@@ -126,16 +126,27 @@ mod test_orm {
         }
     }
 
-    #[cfg(feature = "test_mysql")]
+    #[cfg(feature = "mysql")]
     pub async fn update_by(
         pool: &sqlx::MySqlPool, where_sql: impl AsRef<str>, args: sqlx::mysql::MySqlArguments,
     ) -> sqlx::Result<sqlx::mysql::MySqlQueryResult> {
         use sqlx::Arguments;
-        let sql = format!("UPDATE {} SET {} {}", "users", "status=?", where_sql.as_ref());
-        // 期望值是update status = 3 where id = 2, 但是实际是update status = 2 where id = 3
-        // 这个方法不行
-        // let mut args1: sqlx::mysql::MySqlArguments =
-        //     sqlx::query(&sql).bind(3).take_arguments().unwrap().unwrap();
-        sqlx::query_with(&sql, args).bind(3).execute(pool).await?;
+        let sql = format!("UPDATE users SET status=? {}", where_sql.as_ref());
+        // 期望值是update status = 0 where id = 3, 但是实际是update status = 3 where id = 0
+
+        let mut args1: sqlx::mysql::MySqlArguments =
+            sqlx::query::<sqlx::MySql>(&sql).bind(0).take_arguments().unwrap().unwrap();
+        // args1.add(3);
+        // 这里需要把args1和args合并, 例如 args1.add(3); 如何把args合并到args1中
+        // args1.add(args);
+        sqlx::query_with(&sql, args1).execute(pool).await
+    }
+
+    #[cfg(feature = "mysql")]
+    #[tokio::test]
+    async fn test_update_by() {
+        let pool = get_pool().await.unwrap();
+        let result = update_by(&pool, "where id = ?", args!(3)).await.unwrap();
+        println!("{:?}", result);
     }
 }

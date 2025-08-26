@@ -1,7 +1,7 @@
 /*
  * @Author: plucky
  * @Date: 2022-10-20 00:29:48
- * 
+ *
  */
 
 #[cfg(not(any(feature = "postgres", feature = "sqlite", feature = "mssql")))]
@@ -83,3 +83,23 @@ pub(crate) mod db {
         "?".into()
     }
 }
+
+// #[cfg(feature = "any")]
+// pub(crate) mod db {
+//     use quote::{__private::TokenStream, quote};
+
+//     pub fn db_pool_token() -> (TokenStream, TokenStream, TokenStream) {
+//         let pool = quote!(sqlx::Pool<sqlx::Any>);
+//         let query_result = quote!(sqlx::any::AnyQueryResult);
+//         let arguments = quote!(sqlx::any::AnyArguments<'static>);
+//         (pool, query_result, arguments)
+//     }
+
+//     pub fn db_row_token() -> TokenStream {
+//         quote!(sqlx::any::AnyRow)
+//     }
+
+//     pub fn db_placeholder(_index: usize) -> String {
+//         "?".into()
+//     }
+// }

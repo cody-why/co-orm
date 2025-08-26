@@ -1,6 +1,6 @@
 [package]
 name = "co-orm-macros"
-version = "0.3.13"
+version = "0.3.15"
 edition = "2021"
 authors = ["plucky"]
 description = "Derive macro for co-orm"
@@ -31,3 +31,4 @@ mysql=[]
 postgres=[]
 sqlite=[]
 mssql=[]
+# any=[]

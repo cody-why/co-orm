@@ -1,7 +1,7 @@
 /*
  * @Author: plucky
  * @Date: 2023-10-29 15:56:49
- * 
+ *
  */
 
 use std::collections::HashSet;
@@ -59,16 +59,13 @@ pub(crate) fn has_attribute_by(field: &Field) -> bool {
 // make string "?, ?, ?" or "$1, $2, $3"
 pub(crate) fn question_marks(max: usize) -> String {
     let itr = 1..max + 1;
-    itr.into_iter()
-        .map(db_placeholder)
-        .collect::<Vec<String>>()
-        .join(",")
+    itr.into_iter().map(db_placeholder).collect::<Vec<String>>().join(",")
 }
 
 #[allow(unused)]
 pub(crate) fn check_attributes(attrs: &[syn::Attribute]) -> Result<(), syn::Error> {
-    // 检查属性是否 co_orm(id), co_orm(seq), co_orm(rename="name"), co_orm(skip), co_orm(update), co_orm(by),
-    let valid_attrs: HashSet<_> = ["rename", "id", "by", "seq", "skip", "update"]
+    // 检查属性是否 co_orm(id), co_orm(rename="name"), co_orm(skip), co_orm(update), co_orm(by), co_orm(skip_insert)
+    let valid_attrs: HashSet<_> = ["rename", "id", "by", "seq", "skip", "update", "skip_insert"]
         .iter()
         .cloned()
         .collect();

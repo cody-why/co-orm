@@ -1,16 +1,20 @@
 #[cfg(feature = "mysql")]
 type DbArgs = sqlx::mysql::MySqlArguments;
-#[cfg(all(
-    not(feature = "mysql"),
-    not(feature = "postgres"),
-    not(feature = "sqlite"),
-    // not(feature = "mssql"),
-))]
-type DbArgs = sqlx::mysql::MySqlArguments; // default to MySQL like macros crate
 #[cfg(feature = "postgres")]
 type DbArgs = sqlx::postgres::PgArguments;
 #[cfg(feature = "sqlite")]
 type DbArgs = sqlx::sqlite::SqliteArguments;
+// #[cfg(feature = "any")]
+// type DbArgs = sqlx::any::AnyArguments<'static>;
+#[cfg(all(
+    not(feature = "mysql"),
+    not(feature = "postgres"),
+    not(feature = "sqlite"),
+    // not(feature = "any"),
+    // not(feature = "mssql"),
+))]
+type DbArgs = sqlx::mysql::MySqlArguments;
+
 // #[cfg(feature = "mssql")]
 // type DbArgs = sqlx::mssql::MssqlArguments;
 
@@ -51,6 +55,17 @@ where
     }
 }
 
+// #[cfg(feature = "any")]
+// impl<T> BindArg for T
+// where
+//     T: 'static + sqlx::Encode<'static, sqlx::Any> + sqlx::Type<sqlx::Any>,
+// {
+//     fn bind_to(self, args: &mut DbArgs) {
+//         use sqlx::Arguments as _;
+//         let _ = args.add(self);
+//     }
+// }
+
 // #[cfg(feature = "mssql")]
 // impl<T> BindArg for T
 // where
@@ -71,7 +86,7 @@ where
 /// ```ignore
 /// WHERE name = ? AND age >= ?
 /// ```
-#[derive(Debug, Default, Clone)]
+#[derive(Default, Clone, Debug)]
 pub struct Where {
     sql: String,
     args: DbArgs,
@@ -158,6 +173,7 @@ impl Where {
             self.next_index += 1;
             return "?".to_string();
         }
+
         // #[cfg(feature = "mssql")]
         // {
         //     self.next_index += 1;
@@ -507,9 +523,8 @@ mod test {
     #[test]
     fn test_where() {
         let w = Where::new().eq("status", "active").and().ge("age", 18).or().le("age", 21);
-        let (sql, args) = w.build();
+        let (sql, _args) = w.build();
         assert_eq!(sql, "WHERE status = ? AND age >= ? OR age <= ?");
-        println!("args: {:?}", args);
 
         let w = Where::new().gt("age", 18).and().lt("age", 21);
         let (sql, _args) = w.build();
